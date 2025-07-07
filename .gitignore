@@ -12,4 +12,6 @@ coverage
 *.log
 dist
 .DS_Store
+.docs
+backend/secret
 Thumbs.db 

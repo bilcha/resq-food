@@ -58,7 +58,7 @@ CREATE POLICY "Public can view active businesses" ON businesses
 
 -- Policy for businesses: users can only update their own business
 CREATE POLICY "Users can update own business" ON businesses
-    FOR UPDATE USING (firebase_uid = auth.uid());
+    FOR UPDATE USING (firebase_uid = auth.uid()::text);
 
 -- Policy for listings: public can view active and approved listings
 CREATE POLICY "Public can view active approved listings" ON listings
@@ -68,7 +68,7 @@ CREATE POLICY "Public can view active approved listings" ON listings
 CREATE POLICY "Businesses can manage own listings" ON listings
     FOR ALL USING (
         business_id IN (
-            SELECT id FROM businesses WHERE firebase_uid = auth.uid()
+            SELECT id FROM businesses WHERE firebase_uid = auth.uid()::text
         )
     );
 

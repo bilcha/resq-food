@@ -15,11 +15,41 @@ export class AuthService {
   }
 
   private initializeFirebase() {
+    // Option 1: Use service account JSON file path
+    const serviceAccountPath = this.configService.get('FIREBASE_SERVICE_ACCOUNT_PATH');
+    if (serviceAccountPath) {
+      if (!admin.apps.length) {
+        this.firebaseApp = admin.initializeApp({
+          credential: admin.credential.cert(serviceAccountPath),
+        });
+      } else {
+        this.firebaseApp = admin.app();
+      }
+      return;
+    }
+
+    // Option 2: Use individual environment variables
+    const privateKey = this.configService.get('FIREBASE_PRIVATE_KEY');
+    
+    if (!privateKey) {
+      throw new Error('Firebase private key not found. Please set FIREBASE_PRIVATE_KEY or FIREBASE_SERVICE_ACCOUNT_PATH environment variable.');
+    }
+
+    // Clean and format the private key
+    const cleanPrivateKey = privateKey
+      .replace(/\\n/g, '\n')
+      .trim();
+
+    // Validate PEM format
+    if (!cleanPrivateKey.includes('-----BEGIN PRIVATE KEY-----') || !cleanPrivateKey.includes('-----END PRIVATE KEY-----')) {
+      throw new Error('Invalid Firebase private key format. Private key must be in PEM format with proper headers and footers.');
+    }
+
     const serviceAccount = {
       type: 'service_account',
       project_id: this.configService.get('FIREBASE_PROJECT_ID'),
       private_key_id: this.configService.get('FIREBASE_PRIVATE_KEY_ID'),
-      private_key: this.configService.get('FIREBASE_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
+      private_key: cleanPrivateKey,
       client_email: this.configService.get('FIREBASE_CLIENT_EMAIL'),
       client_id: this.configService.get('FIREBASE_CLIENT_ID'),
       auth_uri: 'https://accounts.google.com/o/oauth2/auth',

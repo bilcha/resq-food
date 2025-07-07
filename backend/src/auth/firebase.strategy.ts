@@ -8,7 +8,7 @@ export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
   constructor(private authService: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: null,
+      secretOrKey: 'dummy-secret-not-used-for-firebase', // Fixed: Added dummy secret
       passReqToCallback: true,
     });
   }
