@@ -12,12 +12,29 @@ export const api = axios.create({
 // Types
 export interface Business {
   id: string
+  firebase_uid: string
   name: string
-  address: string
-  latitude: number
-  longitude: number
-  google_rating: number
-  google_place_id: string
+  email: string
+  phone?: string
+  address?: string
+  latitude?: number
+  longitude?: number
+  google_place_id?: string
+  google_rating?: number
+  description?: string
+  is_active: boolean
+  is_verified: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface BusinessUpdateData {
+  name?: string
+  phone?: string
+  address?: string
+  latitude?: number
+  longitude?: number
+  description?: string
 }
 
 export interface Listing {
@@ -75,6 +92,45 @@ export const listingsApi = {
 
   getById: async (id: string): Promise<Listing> => {
     const response = await api.get(`api/listings/${id}`)
+    return response.data
+  },
+}
+
+// Set authorization token for authenticated requests
+export const setAuthToken = (token: string) => {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+}
+
+// Remove authorization token
+export const removeAuthToken = () => {
+  delete api.defaults.headers.common['Authorization']
+}
+
+export const authApi = {
+  verifyToken: async (token: string): Promise<{ valid: boolean; user?: Business; error?: string }> => {
+    const response = await api.post('/api/auth/verify-token', { token })
+    return response.data
+  },
+
+  getProfile: async (): Promise<Business> => {
+    const response = await api.get('api/auth/profile')
+    return response.data
+  },
+}
+
+export const businessApi = {
+  updateProfile: async (data: BusinessUpdateData): Promise<Business> => {
+    const response = await api.put('/api/business/profile', data)
+    return response.data
+  },
+
+  getAll: async (): Promise<Business[]> => {
+    const response = await api.get('/api/business')
+    return response.data
+  },
+
+  getById: async (id: string): Promise<Business> => {
+    const response = await api.get(`/api/business/${id}`)
     return response.data
   },
 }

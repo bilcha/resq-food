@@ -1,11 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/auth'
-import { Menu, X, User, LogOut, Settings } from 'lucide-react'
+import { Menu, X, User, LogOut, Settings, Building2 } from 'lucide-react'
 import { useState } from 'react'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { user, isAuthenticated, logout } = useAuthStore()
+  const { user, business, isAuthenticated, logout } = useAuthStore()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -48,6 +48,14 @@ const Header = () => {
               Contact
             </Link>
           </nav>
+
+          {/* Business Name Display */}
+          {isAuthenticated && business?.name && (
+            <div className="hidden md:flex items-center space-x-2 px-3 py-1 bg-primary-50 rounded-lg border border-primary-200">
+              <Building2 size={16} className="text-primary-600" />
+              <span className="text-sm font-medium text-primary-700">{business.name}</span>
+            </div>
+          )}
 
           {/* Desktop Auth */}
           <div className="hidden md:flex items-center space-x-4">
@@ -119,6 +127,14 @@ const Header = () => {
             >
               Contact
             </Link>
+            
+            {/* Mobile Business Name Display */}
+            {isAuthenticated && business?.name && (
+              <div className="flex items-center space-x-2 px-3 py-2 bg-primary-50 rounded-lg border border-primary-200">
+                <Building2 size={16} className="text-primary-600" />
+                <span className="text-sm font-medium text-primary-700">{business.name}</span>
+              </div>
+            )}
             
             {isAuthenticated ? (
               <div className="space-y-4 border-t border-gray-200 pt-4">

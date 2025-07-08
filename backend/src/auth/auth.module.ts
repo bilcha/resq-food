@@ -4,10 +4,12 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { FirebaseStrategy } from './firebase.strategy';
 import { FirebaseAuthGuard } from './firebase-auth.guard';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'firebase' }),
+    DatabaseModule,
   ],
   controllers: [AuthController],
   providers: [

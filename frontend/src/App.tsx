@@ -74,7 +74,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             
             {/* Protected Routes */}
-            <Route path="/dashboard" element={
+            <Route path="/business-dashboard" element={
               <ProtectedRoute>
                 <BusinessDashboard />
               </ProtectedRoute>

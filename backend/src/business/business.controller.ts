@@ -30,6 +30,8 @@ export class BusinessController {
   @ApiResponse({ status: 200, description: 'Business profile updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async updateProfile(@Request() req, @Body() updateData: any) {
+    console.log('Business Controller - User object:', req.user);
+    console.log('Business Controller - User ID:', req.user?.id);
     return this.businessService.update(req.user.id, updateData);
   }
 

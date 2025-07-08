@@ -39,6 +39,9 @@ export class BusinessService {
   async update(id: string, updateData: any) {
     const supabase = this.databaseService.getClient();
     
+    console.log('Business Service - Updating business with ID:', id);
+    console.log('Business Service - Update data:', updateData);
+    
     const { data, error } = await supabase
       .from('businesses')
       .update({
@@ -50,9 +53,12 @@ export class BusinessService {
       .single();
 
     if (error) {
+      console.error('Business Service - Update error:', error);
+      console.error('Business Service - Error details:', JSON.stringify(error, null, 2));
       throw error;
     }
 
+    console.log('Business Service - Update successful:', { id: data.id, name: data.name });
     return data;
   }
 
