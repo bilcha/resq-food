@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Put, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, UseGuards, Request, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { BusinessService } from './business.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
+import { CreateBusinessDto } from './dto/create-business.dto';
+import { UpdateBusinessDto } from './dto/update-business.dto';
 
 @ApiTags('business')
 @Controller('business')
+@UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class BusinessController {
   constructor(private businessService: BusinessService) {}
 
@@ -23,16 +26,30 @@ export class BusinessController {
     return this.businessService.findOne(id);
   }
 
+  @Post()
+  @UseGuards(FirebaseAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Create a new business with address geocoding' })
+  @ApiResponse({ status: 201, description: 'Business created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid address or validation failed' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async create(@Request() req, @Body() createBusinessDto: CreateBusinessDto) {
+    console.log('Business Controller - Create business for user:', req.user?.id);
+    console.log('Business Controller - Create data:', createBusinessDto);
+    return this.businessService.create(req.user.firebase_uid, createBusinessDto);
+  }
+
   @Put('profile')
   @UseGuards(FirebaseAuthGuard)
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Update business profile' })
+  @ApiOperation({ summary: 'Update business profile with optional address geocoding' })
   @ApiResponse({ status: 200, description: 'Business profile updated successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid address or validation failed' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async updateProfile(@Request() req, @Body() updateData: any) {
+  async updateProfile(@Request() req, @Body() updateBusinessDto: UpdateBusinessDto) {
     console.log('Business Controller - User object:', req.user);
-    console.log('Business Controller - User ID:', req.user?.id);
-    return this.businessService.update(req.user.id, updateData);
+    console.log('Business Controller - User Firebase UID:', req.user?.firebase_uid);
+    return this.businessService.update(req.user.firebase_uid, updateBusinessDto);
   }
 
   @Post(':id/rating')

@@ -125,7 +125,7 @@ export class AuthService {
     }
   }
 
-  async findOrCreateUser(firebaseUid: string, email: string, displayName?: string) {
+  async findOrCreateUser(firebaseUid: string, email: string, displayName?: string, address?: string) {
     const supabase = this.databaseService.getClient();
     
     console.log('Auth Service - Looking for user with Firebase UID:', firebaseUid);
@@ -147,9 +147,10 @@ export class AuthService {
       return existingUser;
     }
 
-    console.log('Auth Service - Creating new user for:', { firebaseUid, email, displayName });
+    console.log('Auth Service - Creating new user for:', { firebaseUid, email, displayName, address });
 
-    // Create new user
+    // Create new user with basic info (without geocoding for now)
+    // Address geocoding will be handled when the user updates their profile
     const { data: newUser, error: createError } = await supabase
       .from('businesses')
       .insert([
@@ -157,6 +158,7 @@ export class AuthService {
           firebase_uid: firebaseUid,
           email,
           name: displayName || email.split('@')[0],
+          address: address || null,
           is_active: true,
           is_verified: false,
           created_at: new Date().toISOString(),

@@ -15,3 +15,4 @@ dist
 .documentation
 backend/secret
 Thumbs.db 
+.todo-list
