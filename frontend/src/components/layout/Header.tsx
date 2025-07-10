@@ -61,7 +61,7 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <Link to="/dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors">
+                <Link to="/business-dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors">
                   <Settings size={18} />
                   <span>Dashboard</span>
                 </Link>
@@ -139,7 +139,7 @@ const Header = () => {
             {isAuthenticated ? (
               <div className="space-y-4 border-t border-gray-200 pt-4">
                 <Link
-                  to="/dashboard"
+                  to="/business-dashboard"
                   className="block text-gray-700 hover:text-primary-600 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >

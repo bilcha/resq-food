@@ -13,7 +13,7 @@ export default defineConfig({
       manifest: {
         name: 'ResQ Food',
         short_name: 'ResQ Food',
-        description: 'Social-Ecological Food Waste Platform',
+        description: 'Social-Ecological Food Rescue Platform',
         theme_color: '#16a34a',
         background_color: '#ffffff',
         display: 'standalone',

@@ -31,7 +31,7 @@ async function bootstrap() {
   // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('ResQ Food API')
-    .setDescription('API for ResQ Food - Social-Ecological Food Waste Platform')
+    .setDescription('API for ResQ Food - Social-Ecological Food Rescue Platform')
     .setVersion('1.0')
     .addBearerAuth(
       { 

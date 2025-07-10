@@ -1,4 +1,4 @@
-# ResQ Food - Social-Ecological Food Waste Platform
+# ResQ Food - Social-Ecological Food Rescue Platform
 
 ResQ Food is a digital platform that connects businesses with surplus unsold food to consumers looking for discounted or free food packages, helping reduce food waste while providing affordable food options.
 

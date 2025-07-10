@@ -64,6 +64,30 @@ export interface ListingFilters {
   search?: string
 }
 
+export interface CreateListingData {
+  title: string
+  description: string
+  category: string
+  price: number
+  is_free: boolean
+  image_url?: string
+  available_from: string
+  available_until: string
+  quantity?: number
+}
+
+export interface UpdateListingData {
+  title?: string
+  description?: string
+  category?: string
+  price?: number
+  is_free?: boolean
+  image_url?: string
+  available_from?: string
+  available_until?: string
+  quantity?: number
+}
+
 // API Functions
 export const listingsApi = {
   getAll: async (filters?: ListingFilters): Promise<Listing[]> => {
@@ -93,6 +117,25 @@ export const listingsApi = {
   getById: async (id: string): Promise<Listing> => {
     const response = await api.get(`api/listings/${id}`)
     return response.data
+  },
+
+  getByBusiness: async (businessId: string): Promise<Listing[]> => {
+    const response = await api.get(`api/listings/business/${businessId}`)
+    return response.data
+  },
+
+  create: async (data: CreateListingData): Promise<Listing> => {
+    const response = await api.post('api/listings', data)
+    return response.data
+  },
+
+  update: async (id: string, data: UpdateListingData): Promise<Listing> => {
+    const response = await api.put(`api/listings/${id}`, data)
+    return response.data
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`api/listings/${id}`)
   },
 }
 
@@ -132,6 +175,25 @@ export const businessApi = {
   getById: async (id: string): Promise<Business> => {
     const response = await api.get(`/api/business/${id}`)
     return response.data
+  },
+}
+
+export const uploadApi = {
+  uploadImage: async (file: File, folder?: string): Promise<{ imageUrl: string }> => {
+    const formData = new FormData()
+    formData.append('image', file)
+    if (folder) formData.append('folder', folder)
+
+    const response = await api.post('api/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data
+  },
+
+  deleteImage: async (imageUrl: string): Promise<void> => {
+    await api.delete('api/upload/image', { data: { imageUrl } })
   },
 }
 

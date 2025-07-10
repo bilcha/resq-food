@@ -1,7 +1,7 @@
 {
   "name": "resq-food",
   "version": "1.0.0",
-  "description": "Social-Ecological Food Waste Platform",
+  "description": "Social-Ecological Food Rescue Platform",
   "private": true,
   "workspaces": [
     "frontend",
