@@ -1,5 +1,5 @@
 /// <reference types="google.maps" />
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { Loader } from '@googlemaps/js-api-loader'
 import { Business, BusinessUpdateData, businessApi } from '../../lib/api'
@@ -40,6 +40,7 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isDirty }
   } = useForm<FormData>({
     defaultValues: {
@@ -124,6 +125,19 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
 
           autocompleteRef.current = autocomplete
 
+          // Enable autocomplete even on read-only input
+          // addressInputRef.current.addEventListener('focus', () => {
+          //   if (addressInputRef.current) {
+          //     addressInputRef.current.removeAttribute('readonly')
+          //   }
+          // })
+
+          // addressInputRef.current.addEventListener('blur', () => {
+          //   if (addressInputRef.current && !useManualAddress) {
+          //     addressInputRef.current.setAttribute('readonly', 'true')
+          //   }
+          // })
+
           autocomplete.addListener('place_changed', () => {
             const place = autocomplete.getPlace()
             if (place.geometry?.location && place.formatted_address) {
@@ -140,7 +154,15 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
                 address: place.formatted_address
               })
               
-              setValue('address', place.formatted_address)
+              setValue('address', place.formatted_address, { 
+                shouldDirty: true, 
+                shouldTouch: true 
+              })
+              
+              // Ensure input becomes read-only again after selection
+              if (addressInputRef.current) {
+                addressInputRef.current.setAttribute('readonly', 'true')
+              }
             }
           })
         }
@@ -194,7 +216,10 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
       if (response.results.length > 0) {
         const address = response.results[0].formatted_address
         setSelectedLocation({ lat, lng, address })
-        setValue('address', address)
+        setValue('address', address, { 
+          shouldDirty: true, 
+          shouldTouch: true 
+        })
       }
     } catch (error) {
       console.error('Reverse geocoding failed:', error)
@@ -219,6 +244,14 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
       }
 
       const updatedBusiness = await businessApi.updateProfile(updateData)
+      
+      // Reset form with updated values to mark it as clean
+      reset({
+        name: updatedBusiness.name || '',
+        phone: updatedBusiness.phone || '',
+        address: updatedBusiness.address || '',
+        description: updatedBusiness.description || ''
+      })
       
       toast.success('Business profile updated successfully!')
       onUpdate?.(updatedBusiness)
@@ -339,11 +372,17 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
               {/* Address Search Input */}
               <div>
                 <input
-                  ref={addressInputRef}
+                  {...register('address')}
+                  ref={(element) => {
+                    if (element) {
+                      (addressInputRef as any).current = element
+                    }
+                  }}
                   type="text"
                   placeholder="Search for your business address..."
-                  className="input w-full"
-                  defaultValue={business.address || ''}
+                  className="input w-full bg-gray-50"
+                  disabled
+                  value={watchedAddress || ''}
                 />
                 <p className="mt-1 text-sm text-gray-500">
                   Search for your address or click on the map to select a location.
