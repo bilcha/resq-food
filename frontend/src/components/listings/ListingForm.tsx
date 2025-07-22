@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Calendar, Upload, X, Loader2, Euro, Package, Clock } from 'lucide-react'
-import { FOOD_CATEGORIES, CreateListingData, UpdateListingData, uploadApi } from '../../lib/api'
+import { FOOD_CATEGORIES, CreateListingData, UpdateListingData, uploadApi } from '../../lib/offline-api'
 
 interface ListingFormProps {
   initialData?: Partial<CreateListingData>

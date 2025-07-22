@@ -14,7 +14,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { format } from 'date-fns'
-import { listingsApi, Listing, CreateListingData, UpdateListingData } from '../../lib/api'
+import { listingsApi, Listing, CreateListingData, UpdateListingData } from '../../lib/offline-api'
 import { useAuthStore } from '../../store/auth'
 import ListingForm from './ListingForm'
 
@@ -39,11 +39,21 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     queryKey: ['business-listings', businessId],
     queryFn: () => listingsApi.getByBusiness(businessId),
     enabled: !!businessId,
+    retry: (failureCount, error) => {
+      // Don't retry if offline
+      if (!navigator.onLine) return false
+      // Only retry network errors up to 2 times
+      return failureCount < 2
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
+    refetchOnWindowFocus: false,
+    networkMode: 'offlineFirst',
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
   // Create listing mutation
   const createMutation = useMutation({
-    mutationFn: (data: CreateListingData) => listingsApi.create(data),
+    mutationFn: (data: CreateListingData & { business_id: string }) => listingsApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['business-listings', businessId] })
       setShowForm(false)
@@ -70,7 +80,8 @@ export default function ListingManagement({ businessId }: ListingManagementProps
   })
 
   const handleCreateListing = async (data: CreateListingData | UpdateListingData) => {
-    await createMutation.mutateAsync(data as CreateListingData)
+    const createData = { ...data, business_id: businessId } as CreateListingData & { business_id: string }
+    await createMutation.mutateAsync(createData)
   }
 
   const handleUpdateListing = async (data: CreateListingData | UpdateListingData) => {

@@ -1,0 +1,11 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Green background circle -->
+  <circle cx="96" cy="96" r="96" fill="#16a34a"/>
+  
+  <!-- White text "RF" -->
+  <text x="96" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white">R</text>
+  
+  <!-- Simple leaf decoration -->
+  <path d="M70 60 Q80 45 90 60 Q85 70 70 60Z" fill="white" opacity="0.8"/>
+  <path d="M102 60 Q112 45 122 60 Q117 70 102 60Z" fill="white" opacity="0.8"/>
+</svg> 

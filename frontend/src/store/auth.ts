@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, User } from 'firebase/auth'
 import { auth } from '../lib/firebase'
-import { setAuthToken, removeAuthToken, authApi, Business } from '../lib/api'
+import { setAuthToken, removeAuthToken, authApi, Business } from '../lib/offline-api'
 
 interface AuthState {
   user: User | null

@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { ArrowLeft, MapPin, Clock, Star, Calendar, Package, Euro, Phone, Globe, AlertCircle } from 'lucide-react'
-import { listingsApi } from '../lib/api'
+import { listingsApi } from '../lib/offline-api'
 import { formatDistanceToNow, format } from 'date-fns'
 import ListingsMap from '../components/listings/ListingsMap'
 
@@ -19,7 +19,15 @@ const ListingDetail = () => {
     queryKey: ['listing', id],
     queryFn: () => listingsApi.getById(id!),
     enabled: !!id,
-    retry: 2,
+    retry: (failureCount, error) => {
+      // Don't retry if offline
+      if (!navigator.onLine) return false
+      // Only retry network errors up to 2 times
+      return failureCount < 2
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
+    refetchOnWindowFocus: false,
+    networkMode: 'offlineFirst',
   })
 
   const formatTimeRemaining = (until: string) => {

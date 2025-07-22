@@ -1,100 +1,107 @@
 import { Routes, Route } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { useEffect } from 'react'
-import { useAuthStore } from './store/auth'
-import { initializeFirebase } from './lib/firebase'
-import { registerSW } from 'virtual:pwa-register'
 
-// Layout Components
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
+import OnlineStatusIndicator from './components/ui/OnlineStatusIndicator'
+import DataPreloadIndicator from './components/ui/DataPreloadIndicator'
 
-// Pages
 import Home from './pages/Home'
-import Listings from './pages/Listings'
-import ListingDetail from './pages/ListingDetail'
-import BusinessDashboard from './pages/BusinessDashboard'
-import AdminDashboard from './pages/AdminDashboard'
-import Login from './pages/Login'
-import Register from './pages/Register'
 import About from './pages/About'
 import Contact from './pages/Contact'
+import Listings from './pages/Listings'
+import ListingDetail from './pages/ListingDetail'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import BusinessDashboard from './pages/BusinessDashboard'
+import AdminDashboard from './pages/AdminDashboard'
 import NotFound from './pages/NotFound'
 
-// Protected Route Component
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import AdminRoute from './components/auth/AdminRoute'
+
+import { useAuthStore } from './store/auth'
+import { offlineDB } from './lib/offline-db'
+import { dataPreloader } from './lib/data-preloader'
 
 function App() {
   const { initAuth } = useAuthStore()
 
   useEffect(() => {
-    // Initialize Firebase
-    initializeFirebase()
-    
-    // // Initialize authentication
+    // Initialize authentication
     initAuth()
+    
+    // Initialize offline database and preload data
+    const initializeApp = async () => {
+      try {
+        await offlineDB.init()
+        // Preload essential data for offline use
+        await dataPreloader.preloadEssentialData()
+      } catch (error) {
+        console.error('App initialization failed:', error)
+      }
+    }
+    
+    initializeApp()
+  }, [initAuth])
 
-    // Register service worker for PWA
-    if ('serviceWorker' in navigator) {
-      registerSW({
-        onNeedRefresh() {
-          // Show update notification
-          console.log('New content available, please refresh.')
-        },
-        onOfflineReady() {
-          console.log('App ready to work offline')
-        },
+  // Update preloader when business context changes
+  const { business, isAuthenticated } = useAuthStore()
+  useEffect(() => {
+    if (business && isAuthenticated) {
+      // Business user logged in - preload their specific data
+      dataPreloader.updateBusinessContext({
+        isLoggedIn: true,
+        businessId: business.id
+      })
+    } else {
+      // Not logged in as business
+      dataPreloader.updateBusinessContext({
+        isLoggedIn: false
       })
     }
-  }, [])
-  // }, [initAuth])
+  }, [business, isAuthenticated])
 
   return (
-    <>
-      <Helmet>
-        <title>ResQ Food - Reduce Food Waste</title>
-        <meta name="description" content="Connect with businesses to get surplus food at discounted prices while helping reduce food waste." />
-      </Helmet>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Header />
+      <OnlineStatusIndicator />
+      <DataPreloadIndicator />
       
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
-        
-        <main className="flex-grow">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/listings" element={<Listings />} />
-            <Route path="/listings/:id" element={<ListingDetail />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            
-            {/* Auth Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            {/* Protected Routes */}
-            <Route path="/business-dashboard" element={
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/listings" element={<Listings />} />
+          <Route path="/listings/:id" element={<ListingDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          <Route 
+            path="/business-dashboard" 
+            element={
               <ProtectedRoute>
                 <BusinessDashboard />
               </ProtectedRoute>
-            } />
-            
-            {/* Admin Routes */}
-            <Route path="/admin" element={
+            } 
+          />
+          
+          <Route 
+            path="/admin" 
+            element={
               <AdminRoute>
                 <AdminDashboard />
               </AdminRoute>
-            } />
-            
-            {/* 404 Route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        
-        <Footer />
-      </div>
-    </>
+            } 
+          />
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      
+      <Footer />
+    </div>
   )
 }
 

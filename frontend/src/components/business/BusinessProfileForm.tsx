@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { Loader } from '@googlemaps/js-api-loader'
-import { Business, BusinessUpdateData, businessApi } from '../../lib/api'
+import { Business, BusinessUpdateData, businessApi } from '../../lib/offline-api'
 import { useAuthStore } from '../../store/auth'
 import { MapPin, Save, Loader2, AlertCircle, Check } from 'lucide-react'
 import { toast } from 'sonner'

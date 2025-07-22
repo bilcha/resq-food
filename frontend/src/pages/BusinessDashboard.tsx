@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/auth'
 import { Building2, Package, BarChart3, Settings, AlertTriangle } from 'lucide-react'
 import ListingManagement from '../components/listings/ListingManagement'
 import BusinessProfileForm from '../components/business/BusinessProfileForm'
+import OfflineDataStatus from '../components/ui/OfflineDataStatus'
 
 type TabType = 'listings' | 'analytics' | 'profile'
 
@@ -129,15 +130,19 @@ const BusinessDashboard = () => {
           )}
 
           {activeTab === 'analytics' && (
-            <div className="bg-white rounded-lg border border-gray-200 p-8">
-              <div className="text-center py-12">
-                <BarChart3 className="mx-auto text-gray-400 mb-4" size={48} />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Analytics Coming Soon
-                </h3>
-                <p className="text-gray-600">
-                  Track your listing performance, customer engagement, and impact metrics.
-                </p>
+            <div className="space-y-6">
+              <OfflineDataStatus />
+              
+              <div className="bg-white rounded-lg border border-gray-200 p-8">
+                <div className="text-center py-12">
+                  <BarChart3 className="mx-auto text-gray-400 mb-4" size={48} />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Analytics Coming Soon
+                  </h3>
+                  <p className="text-gray-600">
+                    Track your listing performance, customer engagement, and impact metrics.
+                  </p>
+                </div>
               </div>
             </div>
           )}

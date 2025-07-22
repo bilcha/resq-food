@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQuery } from '@tanstack/react-query'
 import { Grid, Map, AlertCircle, Loader2 } from 'lucide-react'
-import { listingsApi, ListingFilters, Listing } from '../lib/api'
+import { listingsApi, ListingFilters, Listing } from '../lib/offline-api'
 import ListingCard from '../components/listings/ListingCard'
 import ListingFiltersComponent from '../components/listings/ListingFilters'
 import ListingsMap from '../components/listings/ListingsMap'
@@ -23,7 +23,15 @@ const Listings = () => {
     queryKey: ['listings', filters],
     queryFn: () => listingsApi.getAll(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 2,
+    retry: (failureCount, error) => {
+      // Don't retry if offline or if we already have local data
+      if (!navigator.onLine) return false
+      // Only retry network errors up to 2 times
+      return failureCount < 2
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    networkMode: 'offlineFirst', // Use cached data when offline
   })
 
   // Update filters
