@@ -185,7 +185,7 @@ class OfflineDB {
       listings = listings.filter(listing =>
         listing.title.toLowerCase().includes(searchTerm) ||
         listing.description.toLowerCase().includes(searchTerm) ||
-        listing.businesses.name.toLowerCase().includes(searchTerm)
+        (listing.businesses?.name && listing.businesses.name.toLowerCase().includes(searchTerm))
       )
     }
 

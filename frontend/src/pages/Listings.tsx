@@ -276,7 +276,7 @@ const Listings = () => {
                                   {listing.title}
                                 </h4>
                                 <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                                  {listing.businesses.name}
+                                  {listing.businesses?.name || 'Unknown Business'}
                                 </p>
                                 <div className="flex items-center justify-between mt-2">
                                   <span className={`text-xs font-medium ${
@@ -284,7 +284,7 @@ const Listings = () => {
                                   }`}>
                                     {listing.is_free ? 'FREE' : `€${listing.price.toFixed(2)}`}
                                   </span>
-                                  {listing.businesses.google_rating && (
+                                  {listing.businesses?.google_rating && (
                                     <div className="flex items-center text-xs text-gray-500">
                                       <span className="text-yellow-400 mr-1">★</span>
                                       {listing.businesses.google_rating}

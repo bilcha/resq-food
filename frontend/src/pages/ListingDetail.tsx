@@ -233,8 +233,8 @@ const ListingDetail = () => {
                   <div className="flex items-start space-x-3">
                     <MapPin size={20} className="text-gray-400 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-gray-900">{businesses.name}</h4>
-                      <p className="text-gray-600">{businesses.address}</p>
+                      <h4 className="font-medium text-gray-900">{businesses?.name || 'Unknown Business'}</h4>
+                      <p className="text-gray-600">{businesses?.address || 'Address not available'}</p>
                     </div>
                   </div>
 

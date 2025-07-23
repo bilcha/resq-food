@@ -105,9 +105,9 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           <div className="flex items-center text-sm text-gray-500 space-x-4">
             <div className="flex items-center space-x-1">
               <MapPin size={14} />
-              <span className="truncate">{businesses.name}</span>
+              <span className="truncate">{businesses?.name || 'Unknown Business'}</span>
             </div>
-            {businesses.google_rating && (
+            {businesses?.google_rating && (
               <div className="flex items-center space-x-1">
                 <Star size={14} className="text-yellow-400 fill-current" />
                 <span>{businesses.google_rating}</span>

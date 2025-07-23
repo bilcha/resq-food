@@ -72,7 +72,7 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
 
     listings.forEach(listing => {
       const { businesses } = listing
-      if (!businesses.latitude || !businesses.longitude) return
+      if (!businesses?.latitude || !businesses?.longitude) return
 
       const position = {
         lat: businesses.latitude,
@@ -101,8 +101,8 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
           <p class="text-sm text-gray-600 mb-2">${listing.description}</p>
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-1 text-sm text-gray-500">
-              <span>${businesses.name}</span>
-              ${businesses.google_rating ? `
+              <span>${businesses?.name || 'Unknown Business'}</span>
+              ${businesses?.google_rating ? `
                 <div class="flex items-center space-x-1 ml-2">
                   <span class="text-yellow-400">★</span>
                   <span>${businesses.google_rating}</span>
