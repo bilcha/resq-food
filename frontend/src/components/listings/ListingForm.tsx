@@ -83,6 +83,14 @@ export default function ListingForm({
     try {
       const { imageUrl } = await uploadApi.uploadImage(file, 'listings')
       setFormData(prev => ({ ...prev, image_url: imageUrl }))
+      
+      // Show feedback about offline/online storage
+      if (imageUrl.startsWith('blob:')) {
+        console.log('Image stored offline for later upload')
+        // You could add a toast notification here if you have a toast system
+      } else {
+        console.log('Image uploaded successfully')
+      }
     } catch (error) {
       console.error('Image upload error:', error)
       setErrors(prev => ({ ...prev, image_url: 'Failed to upload image' }))
@@ -313,6 +321,12 @@ export default function ListingForm({
               alt="Listing preview"
               className="w-32 h-32 object-cover rounded-lg border border-gray-300"
             />
+            {formData.image_url.startsWith('blob:') && (
+              <div className="absolute -top-2 -left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
+                <Clock size={12} />
+                <span>Offline</span>
+              </div>
+            )}
             <button
               type="button"
               onClick={removeImage}
@@ -350,6 +364,11 @@ export default function ListingForm({
         {errors.image_url && <p className="text-red-500 text-sm mt-1">{errors.image_url}</p>}
         <p className="text-xs text-gray-500 mt-1">
           Maximum file size: 5MB. Supported formats: JPG, PNG, WebP
+          {!navigator.onLine && (
+            <span className="block text-blue-600 mt-1">
+              📱 Offline mode: Images will be uploaded when connection is restored
+            </span>
+          )}
         </p>
       </div>
 

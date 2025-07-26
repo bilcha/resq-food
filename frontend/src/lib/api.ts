@@ -4,6 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 5000, // 5 second timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -179,7 +180,7 @@ export const businessApi = {
 }
 
 export const uploadApi = {
-  uploadImage: async (file: File, folder?: string): Promise<{ imageUrl: string }> => {
+  uploadImage: async (file: File, folder?: string, timeoutMs = 30000): Promise<{ imageUrl: string }> => {
     const formData = new FormData()
     formData.append('image', file)
     if (folder) formData.append('folder', folder)
@@ -188,6 +189,7 @@ export const uploadApi = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      timeout: timeoutMs, // 30 seconds default, configurable
     })
     return response.data
   },

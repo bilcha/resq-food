@@ -33,7 +33,7 @@ export default function OfflineDataStatus() {
     return null
   }
 
-  const { lastSync, pendingChanges, isSyncing } = syncStatus
+  const { lastSync, pendingChanges, isSyncing, pendingImages, failedImages } = syncStatus
   const { hasLocalData, storageInfo } = offlineStatus
 
   const handleForceSync = async () => {
@@ -41,6 +41,14 @@ export default function OfflineDataStatus() {
       await offlineApi.forceSync()
     } catch (error) {
       console.error('Force sync failed:', error)
+    }
+  }
+
+  const handleRetryImages = async () => {
+    try {
+      await syncService.retryFailedImageUploads()
+    } catch (error) {
+      console.error('Retry images failed:', error)
     }
   }
 
@@ -85,6 +93,17 @@ export default function OfflineDataStatus() {
                 <RefreshCw size={16} className={`mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
                 {isSyncing ? 'Syncing...' : 'Sync Now'}
               </button>
+
+              {failedImages > 0 && (
+                <button
+                  onClick={handleRetryImages}
+                  disabled={isSyncing}
+                  className="btn btn-sm bg-red-600 hover:bg-red-700 text-white flex items-center"
+                >
+                  <RefreshCw size={16} className="mr-2" />
+                  Retry Images
+                </button>
+              )}
             </>
           )}
         </div>
@@ -97,6 +116,9 @@ export default function OfflineDataStatus() {
             <div>Businesses: {storageInfo.businessesCount}</div>
             <div>Listings: {storageInfo.listingsCount}</div>
             <div>Pending changes: {storageInfo.pendingChangesCount}</div>
+            {storageInfo.imagesCount !== undefined && (
+              <div>Images: {storageInfo.imagesCount - storageInfo.unuploadedImagesCount} uploaded, {storageInfo.unuploadedImagesCount} pending</div>
+            )}
           </div>
         </div>
 
@@ -124,17 +146,28 @@ export default function OfflineDataStatus() {
               </div>
             )}
             
-            {isOnline && !isSyncing && !preloadStatus.isPreloading && pendingChanges === 0 && (
+            {isOnline && !isSyncing && !preloadStatus.isPreloading && pendingChanges === 0 && pendingImages === 0 && (
               <div className="flex items-center text-green-600 text-sm">
                 <CheckCircle size={16} className="mr-2" />
                 All synced
               </div>
             )}
             
-            {isOnline && !isSyncing && pendingChanges > 0 && (
+            {isOnline && !isSyncing && (pendingChanges > 0 || pendingImages > 0) && (
               <div className="flex items-center text-orange-600 text-sm">
                 <Clock size={16} className="mr-2" />
-                {pendingChanges} pending
+                {pendingChanges + pendingImages} pending sync
+                {pendingImages > 0 && (
+                  <span className="ml-1 text-xs">({pendingImages} images)</span>
+                )}
+              </div>
+            )}
+
+            {failedImages > 0 && (
+              <div className="flex items-center text-red-600 text-sm">
+                <AlertTriangle size={16} className="mr-2" />
+                {failedImages} image{failedImages === 1 ? '' : 's'} failed upload
+                <span className="ml-1 text-xs">(will retry automatically)</span>
               </div>
             )}
             

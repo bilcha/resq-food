@@ -12,6 +12,11 @@ import {
 } from './api'
 
 class OfflineFirstAPI {
+  private isOfflineOrUnreliable(): boolean {
+    // Be more aggressive about treating uncertain network states as offline
+    // This prevents hanging spinners on slow/unreliable connections
+    return !navigator.onLine
+  }
   // Listings API
   listings = {
     getAll: async (filters?: ListingFilters): Promise<Listing[]> => {
@@ -107,6 +112,8 @@ class OfflineFirstAPI {
     },
 
     create: async (data: CreateListingData & { business_id: string }): Promise<Listing> => {
+      console.log('OfflineAPI: Creating listing, navigator.onLine =', navigator.onLine)
+      
       // Generate temporary ID for offline operation
       const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       const tempListing: Listing = {
@@ -128,64 +135,122 @@ class OfflineFirstAPI {
         businesses: {} as Business // Will be populated when synced
       }
 
-      if (navigator.onLine) {
-        try {
-          const listing = await originalListingsApi.create(data)
-          await offlineDB.saveListing(listing)
-          return listing
-        } catch (error) {
-          console.warn('Backend request failed, creating offline:', error)
-        }
+      // For mutations, be aggressive about offline-first to prevent hanging
+      // Only try online if we're very confident about connectivity
+      if (this.isOfflineOrUnreliable()) {
+        console.log('OfflineAPI: Going offline-first for create')
+        await offlineDB.saveListing(tempListing)
+        await syncService.queueLocalChange('create', 'listings', { ...data, _tempId: tempId })
+        return tempListing
       }
-      
-      // Store locally and queue for sync
-      await offlineDB.saveListing(tempListing)
-      await syncService.queueLocalChange('create', 'listings', data)
-      return tempListing
+
+      // Try online with very short timeout to prevent hanging
+      console.log('OfflineAPI: Attempting online create')
+      try {
+        // Create a promise that rejects quickly to prevent hanging
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout')), 2000)
+        })
+        
+        const createPromise = originalListingsApi.create(data)
+        const listing = await Promise.race([createPromise, timeoutPromise])
+        
+        await offlineDB.saveListing(listing)
+        console.log('OfflineAPI: Created listing on backend:', listing.id)
+        return listing
+      } catch (error) {
+        console.warn('OfflineAPI: Backend request failed, falling back to offline:', error)
+        // Fall back to offline creation
+        await offlineDB.saveListing(tempListing)
+        await syncService.queueLocalChange('create', 'listings', { ...data, _tempId: tempId })
+        return tempListing
+      }
     },
 
     update: async (id: string, data: UpdateListingData): Promise<Listing> => {
-      if (navigator.onLine) {
-        try {
-          const listing = await originalListingsApi.update(id, data)
-          await offlineDB.saveListing(listing)
-          return listing
-        } catch (error) {
-          console.warn('Backend request failed, updating offline:', error)
+      console.log('OfflineAPI: Updating listing, navigator.onLine =', navigator.onLine)
+      
+      // For mutations, be aggressive about offline-first
+      if (this.isOfflineOrUnreliable()) {
+        console.log('OfflineAPI: Going offline-first for update')
+        const existingListing = await offlineDB.getListing(id)
+        if (!existingListing) {
+          throw new Error('Listing not found for update')
         }
+        
+        const updatedListing = {
+          ...existingListing,
+          ...data,
+          updated_at: new Date().toISOString()
+        }
+        
+        await offlineDB.saveListing(updatedListing)
+        await syncService.queueLocalChange('update', 'listings', { id, ...data })
+        return updatedListing
       }
-      
-      // Update locally and queue for sync
-      const existingListing = await offlineDB.getListing(id)
-      if (!existingListing) {
-        throw new Error('Listing not found for update')
+
+      // Try online with timeout
+      console.log('OfflineAPI: Attempting online update')
+      try {
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout')), 2000)
+        })
+        
+        const updatePromise = originalListingsApi.update(id, data)
+        const listing = await Promise.race([updatePromise, timeoutPromise])
+        
+        await offlineDB.saveListing(listing)
+        console.log('OfflineAPI: Updated listing on backend:', id)
+        return listing
+      } catch (error) {
+        console.warn('OfflineAPI: Backend request failed, falling back to offline:', error)
+        // Fall back to offline update
+        const existingListing = await offlineDB.getListing(id)
+        if (!existingListing) {
+          throw new Error('Listing not found for update')
+        }
+        
+        const updatedListing = {
+          ...existingListing,
+          ...data,
+          updated_at: new Date().toISOString()
+        }
+        
+        await offlineDB.saveListing(updatedListing)
+        await syncService.queueLocalChange('update', 'listings', { id, ...data })
+        return updatedListing
       }
-      
-      const updatedListing = {
-        ...existingListing,
-        ...data,
-        updated_at: new Date().toISOString()
-      }
-      
-      await offlineDB.saveListing(updatedListing)
-      await syncService.queueLocalChange('update', 'listings', { id, ...data })
-      return updatedListing
     },
 
     delete: async (id: string): Promise<void> => {
-      if (navigator.onLine) {
-        try {
-          await originalListingsApi.delete(id)
-          await offlineDB.deleteListing(id)
-          return
-        } catch (error) {
-          console.warn('Backend request failed, deleting offline:', error)
-        }
-      }
+      console.log('OfflineAPI: Deleting listing, navigator.onLine =', navigator.onLine)
       
-      // Delete locally and queue for sync
-      await offlineDB.deleteListing(id)
-      await syncService.queueLocalChange('delete', 'listings', { id })
+      // For mutations, be aggressive about offline-first
+      if (this.isOfflineOrUnreliable()) {
+        console.log('OfflineAPI: Going offline-first for delete')
+        await offlineDB.deleteListing(id)
+        await syncService.queueLocalChange('delete', 'listings', { id })
+        return
+      }
+
+      // Try online with timeout
+      console.log('OfflineAPI: Attempting online delete')
+      try {
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout')), 2000)
+        })
+        
+        const deletePromise = originalListingsApi.delete(id)
+        await Promise.race([deletePromise, timeoutPromise])
+        
+        await offlineDB.deleteListing(id)
+        console.log('OfflineAPI: Deleted listing on backend:', id)
+      } catch (error) {
+        console.warn('OfflineAPI: Backend request failed, falling back to offline:', error)
+        // Fall back to offline deletion
+        await offlineDB.deleteListing(id)
+        await syncService.queueLocalChange('delete', 'listings', { id })
+      }
     }
   }
 
@@ -290,6 +355,8 @@ class OfflineFirstAPI {
       businessesCount: number
       listingsCount: number
       pendingChangesCount: number
+      imagesCount: number
+      unuploadedImagesCount: number
     }
   }> {
     const storageInfo = await offlineDB.getStorageInfo()
@@ -307,6 +374,10 @@ class OfflineFirstAPI {
   async forceSync(): Promise<void> {
     await syncService.sync()
   }
+
+  async cleanupTempData(): Promise<number> {
+    return await syncService.cleanupTempListings()
+  }
 }
 
 export const offlineApi = new OfflineFirstAPI()
@@ -315,6 +386,62 @@ export const offlineApi = new OfflineFirstAPI()
 export const listingsApi = offlineApi.listings
 export const businessApi = offlineApi.business
 
+// Export utility functions
+export const offlineUtils = {
+  getOfflineStatus: () => offlineApi.getOfflineStatus(),
+  clearOfflineData: () => offlineApi.clearOfflineData(),
+  forceSync: () => offlineApi.forceSync(),
+  cleanupTempData: () => offlineApi.cleanupTempData()
+}
+
 // Re-export other APIs that don't need offline functionality
-export { authApi, uploadApi, setAuthToken, removeAuthToken, FOOD_CATEGORIES } from './api'
+export { authApi, setAuthToken, removeAuthToken, FOOD_CATEGORIES } from './api'
 export type * from './api' 
+
+// Offline-first image upload API
+export const uploadApi = {
+  uploadImage: async (file: File, folder?: string, linkedToListing?: string): Promise<{ imageUrl: string }> => {
+    // If online, try to upload immediately with extended timeout
+    if (navigator.onLine) {
+      try {
+        const originalUploadApi = await import('./api')
+        const result = await originalUploadApi.uploadApi.uploadImage(file, folder, 10000) // 45 second timeout for user-initiated uploads
+        return result
+      } catch (error) {
+        console.warn('Online image upload failed, storing offline:', error)
+        // Fall through to offline storage
+      }
+    }
+    
+    // Store image offline
+    console.log('Storing image offline for later upload')
+    const localUrl = await offlineDB.saveImage(file, linkedToListing)
+    return { imageUrl: localUrl }
+  },
+
+  deleteImage: async (imageUrl: string): Promise<void> => {
+    // Check if this is a local URL (blob URL)
+    if (imageUrl.startsWith('blob:')) {
+      const image = await offlineDB.findImageByLocalUrl(imageUrl)
+      if (image) {
+        await offlineDB.deleteImage(image.id)
+        return
+      }
+    }
+    
+    // If online and it's a remote URL, try to delete from server
+    if (navigator.onLine && !imageUrl.startsWith('blob:')) {
+      try {
+        const originalUploadApi = await import('./api')
+        await originalUploadApi.uploadApi.deleteImage(imageUrl)
+      } catch (error) {
+        console.warn('Failed to delete remote image:', error)
+      }
+    }
+  },
+
+  // Get all pending image uploads
+  getPendingUploads: async (): Promise<any[]> => {
+    return await offlineDB.getUnuploadedImages()
+  }
+} 

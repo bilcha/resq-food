@@ -29,12 +29,38 @@ export default function ListingManagement({ businessId }: ListingManagementProps
   const [editingListing, setEditingListing] = useState<Listing | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  // Listen for sync completion to refresh listings
+  useEffect(() => {
+    const handleSyncComplete = () => {
+      console.log('Sync completed, refreshing listings...')
+      
+      // Add a small delay to ensure database updates are complete
+      setTimeout(() => {
+        // Invalidate and refetch immediately
+        queryClient.invalidateQueries({ 
+          queryKey: ['business-listings', businessId],
+          refetchType: 'all' 
+        })
+        // Also force a manual refetch after a short delay to ensure it happens
+        setTimeout(() => {
+          queryClient.refetchQueries({ 
+            queryKey: ['business-listings', businessId] 
+          })
+        }, 500)
+      }, 100)
+    }
+
+    window.addEventListener('sync-complete', handleSyncComplete)
+    return () => window.removeEventListener('sync-complete', handleSyncComplete)
+  }, [queryClient, businessId])
+
   // Fetch business listings
   const {
     data: listings = [],
     isLoading,
     isError,
-    error
+    error,
+    dataUpdatedAt
   } = useQuery({
     queryKey: ['business-listings', businessId],
     queryFn: () => listingsApi.getByBusiness(businessId),
@@ -48,12 +74,22 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
     refetchOnWindowFocus: false,
     networkMode: 'offlineFirst',
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000, // Reduced to 30 seconds for more responsive UI updates
   })
+
+  // Debug: Log when listings data changes
+  useEffect(() => {
+    console.log('Listings data updated:', {
+      count: listings.length,
+      dataUpdatedAt: new Date(dataUpdatedAt),
+      listingsWithBlobUrls: listings.filter(l => l.image_url?.startsWith('blob:')).length
+    })
+  }, [listings, dataUpdatedAt])
 
   // Create listing mutation
   const createMutation = useMutation({
     mutationFn: (data: CreateListingData & { business_id: string }) => listingsApi.create(data),
+    networkMode: 'offlineFirst',
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['business-listings', businessId] })
       setShowForm(false)
@@ -64,6 +100,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateListingData }) => 
       listingsApi.update(id, data),
+    networkMode: 'offlineFirst',
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['business-listings', businessId] })
       setEditingListing(null)
@@ -73,6 +110,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
   // Delete listing mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => listingsApi.delete(id),
+    networkMode: 'offlineFirst',
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['business-listings', businessId] })
       setDeletingId(null)
@@ -252,11 +290,19 @@ export default function ListingManagement({ businessId }: ListingManagementProps
             >
               {/* Image */}
               {listing.image_url ? (
-                <img
-                  src={listing.image_url}
-                  alt={listing.title}
-                  className="w-full h-48 object-cover"
-                />
+                <div className="relative">
+                  <img
+                    src={listing.image_url}
+                    alt={listing.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  {listing.image_url.startsWith('blob:') && (
+                    <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
+                      <Clock size={12} />
+                      <span>Syncing</span>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
                   <Package className="text-gray-400" size={48} />
