@@ -283,6 +283,7 @@ const resources = {
             cancel: "Скасувати",
             success_message: "Профіль бізнесу успішно оновлено!",
             error_message: "Не вдалося оновити профіль бізнесу. Спробуйте ще раз.",
+            search_or_click_map: "Введіть свою адресу або виберіть локацію на мапі",
             placeholders: {
               business_name: "Введіть назву вашого бізнесу",
               phone: "Наприклад: +380XXXXXXXXX",
@@ -679,6 +680,7 @@ const resources = {
             cancel: "Cancel",
             success_message: "Business profile updated successfully!",
             error_message: "Failed to update business profile. Please try again.",
+            search_or_click_map: "Search for your address or click on the map to select a location.",
             placeholders: {
               business_name: "Enter your business name",
               phone: "e.g. +1234567890",

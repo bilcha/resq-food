@@ -1,7 +1,7 @@
 /// <reference types="google.maps" />
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
-import { Loader } from '@googlemaps/js-api-loader'
+import { loadGoogleMaps } from '../../lib/google-maps-loader'
 import { Business, BusinessUpdateData, businessApi } from '../../lib/offline-api'
 import { useAuthStore } from '../../store/auth'
 import { MapPin, Save, Loader2, AlertCircle, Check } from 'lucide-react'
@@ -59,20 +59,14 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
   useEffect(() => {
     const initMap = async () => {
       try {
-        const loader = new Loader({
-          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
-          version: 'weekly',
-          libraries: ['places']
-        })
-
-        await loader.load()
+        await loadGoogleMaps()
         
         if (!mapRef.current) return
 
         // Use business location if available, otherwise default location
         const initialLocation = business.latitude && business.longitude
           ? { lat: business.latitude, lng: business.longitude }
-          : { lat: 50.1109, lng: 8.6821 } // Frankfurt, Germany
+          : { lat: 50.4501, lng: 30.5234 } // Kyiv, Ukraine as default
 
         const map = new google.maps.Map(mapRef.current, {
           zoom: business.latitude && business.longitude ? 15 : 10,
@@ -122,7 +116,8 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
         if (addressInputRef.current) {
           const autocomplete = new google.maps.places.Autocomplete(addressInputRef.current, {
             types: ['establishment', 'geocode'],
-            fields: ['place_id', 'geometry', 'formatted_address', 'name']
+            fields: ['place_id', 'geometry', 'formatted_address', 'name'],
+            componentRestrictions: { country: 'ua' } // Restrict to Ukraine
           })
 
           autocompleteRef.current = autocomplete
@@ -212,7 +207,9 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
     try {
       const geocoder = new google.maps.Geocoder()
       const response = await geocoder.geocode({
-        location: { lat, lng }
+        location: { lat, lng },
+        language: 'uk', // Request results in Ukrainian
+        region: 'UA' // Bias results towards Ukraine
       })
 
       if (response.results.length > 0) {
@@ -381,13 +378,13 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
                     }
                   }}
                   type="text"
-                  placeholder="Search for your business address..."
+                  placeholder={t('components.business.profile_form.placeholders.search_address')}
                   className="input w-full bg-gray-50"
                   disabled
                   value={watchedAddress || ''}
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                  Search for your address or click on the map to select a location.
+                  {t('components.business.profile_form.search_or_click_map')}
                 </p>
               </div>
 

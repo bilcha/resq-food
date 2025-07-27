@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Loader } from '@googlemaps/js-api-loader'
+import { loadGoogleMaps } from '../../lib/google-maps-loader'
 import { useTranslation } from 'react-i18next'
 import { Listing } from '../../lib/api'
 import { MapPin, Euro, Star } from 'lucide-react'
@@ -22,18 +22,12 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
   useEffect(() => {
     const initMap = async () => {
       try {
-        const loader = new Loader({
-          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
-          version: 'weekly',
-          libraries: ['places']
-        })
-
-        await loader.load()
+        await loadGoogleMaps()
         
         if (!mapRef.current) return
 
-        // Default to Europe center if no listings
-        const defaultCenter = { lat: 50.1109, lng: 8.6821 } // Frankfurt, Germany
+        // Default to Ukraine center if no listings
+        const defaultCenter = { lat: 50.4501, lng: 30.5234 } // Kyiv, Ukraine
 
         const map = new google.maps.Map(mapRef.current, {
           zoom: 10,
