@@ -90,7 +90,7 @@ const Home = () => {
               {t('home.cta_subtitle')}
             </p>
             <Link to="/listings" className="btn btn-primary btn-lg">
-              {t('common.explore_listings')}
+              {t('common.browse_listings')}
             </Link>
           </div>
         </section>
