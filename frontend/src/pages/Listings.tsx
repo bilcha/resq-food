@@ -6,11 +6,13 @@ import { listingsApi, ListingFilters, Listing } from '../lib/offline-api'
 import ListingCard from '../components/listings/ListingCard'
 import ListingFiltersComponent from '../components/listings/ListingFilters'
 import ListingsMap from '../components/listings/ListingsMap'
+import { useTranslation } from 'react-i18next'
 
 const Listings = () => {
   const [filters, setFilters] = useState<ListingFilters>({})
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null)
+  const { t } = useTranslation()
 
   // Fetch listings with React Query
   const {
@@ -66,8 +68,8 @@ const Listings = () => {
   return (
     <>
       <Helmet>
-        <title>Food Listings - ResQ Food</title>
-        <meta name="description" content="Browse available food listings from local businesses at discounted prices." />
+        <title>{t('listings.title')}</title>
+        <meta name="description" content={t('listings.meta_description')} />
       </Helmet>
       
       <div className="min-h-screen py-8">
@@ -75,10 +77,10 @@ const Listings = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Available Food Listings
+              {t('listings.page_title')}
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover surplus food from local businesses at discounted prices and help reduce food waste
+              {t('listings.page_subtitle')}
             </p>
           </div>
 
@@ -96,16 +98,16 @@ const Listings = () => {
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <Loader2 size={16} className="animate-spin" />
-                    <span>Loading listings...</span>
+                    <span>{t('listings.loading')}</span>
                   </div>
                 ) : (
-                  `${listings.length} listing${listings.length !== 1 ? 's' : ''} found`
+                  `${listings.length} ${listings.length !== 1 ? t('listings.listings_found') : t('listings.listing_found')}`
                 )}
               </span>
             </div>
             
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600 hidden sm:inline">View:</span>
+              <span className="text-sm text-gray-600 hidden sm:inline">{t('listings.view_label')}</span>
               <div className="flex rounded-lg border border-gray-300 overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
@@ -116,7 +118,7 @@ const Listings = () => {
                   }`}
                 >
                   <Grid size={16} className="sm:mr-2" />
-                  <span className="hidden sm:inline">Grid</span>
+                  <span className="hidden sm:inline">{t('listings.grid_view')}</span>
                 </button>
                 <button
                   onClick={() => setViewMode('map')}
@@ -127,7 +129,7 @@ const Listings = () => {
                   }`}
                 >
                   <Map size={16} className="mr-2" />
-                  Map
+                  {t('listings.map_view')}
                 </button>
               </div>
             </div>
@@ -139,15 +141,15 @@ const Listings = () => {
               <div className="flex items-start">
                 <AlertCircle className="text-red-500 mt-0.5 mr-3" size={20} />
                 <div>
-                  <h3 className="text-red-800 font-medium">Error loading listings</h3>
+                  <h3 className="text-red-800 font-medium">{t('listings.error_loading')}</h3>
                   <p className="text-red-700 text-sm mt-1">
-                    {error instanceof Error ? error.message : 'Something went wrong while fetching listings.'}
+                    {error instanceof Error ? error.message : t('listings.error_message')}
                   </p>
                   <button
                     onClick={() => refetch()}
                     className="btn btn-sm mt-3 bg-red-600 text-white hover:bg-red-700"
                   >
-                    Try Again
+                    {t('listings.try_again')}
                   </button>
                 </div>
               </div>
@@ -178,16 +180,16 @@ const Listings = () => {
                 <div className="text-center py-20">
                   <div className="text-6xl mb-4">🔍</div>
                   <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                    No listings found
+                    {t('listings.no_listings')}
                   </h2>
                   <p className="text-gray-600 mb-6">
-                    Try adjusting your search criteria or check back later for new listings.
+                    {t('listings.no_listings_message')}
                   </p>
                   <button
                     onClick={() => setFilters({})}
                     className="btn btn-primary"
                   >
-                    Clear all filters
+                    {t('listings.clear_filters')}
                   </button>
                 </div>
               ) : (
@@ -282,7 +284,7 @@ const Listings = () => {
                                   <span className={`text-xs font-medium ${
                                     listing.is_free ? 'text-green-600' : 'text-gray-900'
                                   }`}>
-                                    {listing.is_free ? 'FREE' : `€${listing.price.toFixed(2)}`}
+                                    {listing.is_free ? t('listing_detail.free') : `€${listing.price.toFixed(2)}`}
                                   </span>
                                   {listing.businesses?.google_rating && (
                                     <div className="flex items-center text-xs text-gray-500">

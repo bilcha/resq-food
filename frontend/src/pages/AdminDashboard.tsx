@@ -1,10 +1,12 @@
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 
 const AdminDashboard = () => {
+  const { t } = useTranslation()
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard - ResQ Food</title>
+        <title>{t('admin.title')}</title>
       </Helmet>
       
       <div className="min-h-screen py-12">
@@ -12,10 +14,10 @@ const AdminDashboard = () => {
           <div className="text-center py-20">
             <div className="text-6xl mb-4">⚙️</div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Admin Dashboard
+              {t('admin.page_title')}
             </h1>
             <p className="text-gray-600">
-              Administrative controls and analytics coming soon.
+              {t('admin.coming_soon')}
             </p>
           </div>
         </div>

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const Footer = () => {
+  const { t } = useTranslation()
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -8,36 +10,36 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">ResQ Food</h3>
             <p className="text-gray-400">
-              Reducing food waste by connecting businesses with surplus food to consumers.
+              {t('footer.description')}
             </p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold mb-4">Quick Links</h4>
+            <h4 className="text-sm font-semibold mb-4">{t('common.quick_links')}</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><Link to="/" className="hover:text-white">Home</Link></li>
-              <li><Link to="/listings" className="hover:text-white">Listings</Link></li>
-              <li><Link to="/about" className="hover:text-white">About</Link></li>
-              <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
+              <li><Link to="/" className="hover:text-white">{t('navigation.home')}</Link></li>
+              <li><Link to="/listings" className="hover:text-white">{t('navigation.listings')}</Link></li>
+              <li><Link to="/about" className="hover:text-white">{t('navigation.about')}</Link></li>
+              <li><Link to="/contact" className="hover:text-white">{t('navigation.contact')}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold mb-4">For Businesses</h4>
+            <h4 className="text-sm font-semibold mb-4">{t('common.for_businesses')}</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><Link to="/register" className="hover:text-white">Register</Link></li>
-              <li><Link to="/login" className="hover:text-white">Login</Link></li>
-              <li><Link to="/business-dashboard" className="hover:text-white">Dashboard</Link></li>
+              <li><Link to="/register" className="hover:text-white">{t('common.register')}</Link></li>
+              <li><Link to="/login" className="hover:text-white">{t('navigation.login')}</Link></li>
+              <li><Link to="/business-dashboard" className="hover:text-white">{t('navigation.dashboard')}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold mb-4">Support</h4>
+            <h4 className="text-sm font-semibold mb-4">{t('common.support')}</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><Link to="/contact" className="hover:text-white">Help Center</Link></li>
-              <li><Link to="/contact" className="hover:text-white">Contact Support</Link></li>
+              <li><Link to="/contact" className="hover:text-white">{t('common.help_center')}</Link></li>
+              <li><Link to="/contact" className="hover:text-white">{t('common.contact_support')}</Link></li>
             </ul>
           </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2025 ResQ Food. All rights reserved.</p>
+          <p>{t('footer.copyright')}</p>
         </div>
       </div>
     </footer>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
+import { useTranslation } from 'react-i18next'
 
 interface FormData {
   email: string
@@ -17,6 +18,7 @@ interface FormErrors {
 const Login = () => {
   const navigate = useNavigate()
   const { login } = useAuthStore()
+  const { t } = useTranslation()
   
   const [formData, setFormData] = useState<FormData>({
     email: '',
@@ -31,14 +33,14 @@ const Login = () => {
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = 'Email is required'
+      newErrors.email = t('login.validation.email_required')
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid'
+      newErrors.email = t('login.validation.email_invalid')
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Password is required'
+      newErrors.password = t('login.validation.password_required')
     }
 
     setErrors(newErrors)
@@ -64,18 +66,18 @@ const Login = () => {
       console.error('Login error:', error)
       
       // Handle Firebase auth errors
-      let errorMessage = 'Login failed. Please try again.'
+      let errorMessage = t('login.errors.general')
       
       if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email. Please check your email or register a new account.'
+        errorMessage = t('login.errors.user_not_found')
       } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password. Please try again.'
+        errorMessage = t('login.errors.wrong_password')
       } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address.'
+        errorMessage = t('login.errors.invalid_email')
       } else if (error.code === 'auth/user-disabled') {
-        errorMessage = 'This account has been disabled. Please contact support.'
+        errorMessage = t('login.errors.user_disabled')
       } else if (error.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many failed login attempts. Please try again later.'
+        errorMessage = t('login.errors.too_many_requests')
       }
       
       setErrors({ general: errorMessage })
@@ -97,18 +99,18 @@ const Login = () => {
   return (
     <>
       <Helmet>
-        <title>Login - ResQ Food</title>
-        <meta name="description" content="Login to your ResQ Food business account." />
+        <title>{t('login.title')}</title>
+        <meta name="description" content={t('login.meta_description')} />
       </Helmet>
       
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              Sign in to your account
+              {t('login.page_title')}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              For business owners only
+              {t('login.page_subtitle')}
             </p>
           </div>
           
@@ -123,7 +125,7 @@ const Login = () => {
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email address
+                  {t('login.email_label')}
                 </label>
                 <input
                   id="email"
@@ -135,7 +137,7 @@ const Login = () => {
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                     errors.email ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                  placeholder="your-business@example.com"
+                  placeholder={t('login.email_placeholder')}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
@@ -143,7 +145,7 @@ const Login = () => {
               {/* Password */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
+                  {t('login.password_label')}
                 </label>
                 <input
                   id="password"
@@ -155,7 +157,7 @@ const Login = () => {
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                     errors.password ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                  placeholder="Password"
+                  placeholder={t('login.password_placeholder')}
                 />
                 {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
               </div>
@@ -173,19 +175,19 @@ const Login = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Signing in...
+                    {t('login.signing_in')}
                   </span>
                 ) : (
-                  'Sign in'
+                  t('login.sign_in_button')
                 )}
               </button>
             </div>
 
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
+                {t('login.no_account')}{' '}
                 <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
-                  Register your business
+                  {t('login.register_link')}
                 </Link>
               </p>
             </div>

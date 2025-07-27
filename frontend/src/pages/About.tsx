@@ -1,40 +1,37 @@
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 
 const About = () => {
+  const { t } = useTranslation()
   return (
     <>
       <Helmet>
-        <title>About - ResQ Food</title>
-        <meta name="description" content="Learn about ResQ Food's mission to reduce food waste and connect businesses with consumers." />
+        <title>{t('about.title')}</title>
+        <meta name="description" content={t('about.meta_description')} />
       </Helmet>
       
       <div className="min-h-screen py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              About ResQ Food
+              {t('about.page_title')}
             </h1>
             <p className="text-xl text-gray-600">
-              Our mission to reduce food waste and help the environment
+              {t('about.page_subtitle')}
             </p>
           </div>
           
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-700 mb-6">
-              ResQ Food is a social-ecological platform that connects businesses with surplus food 
-              to consumers looking for affordable, quality meals. We're inspired by successful 
-              global initiatives like Too Good To Go and OLIO, but tailored specifically for 
-              the Ukrainian market.
+              {t('about.intro')}
             </p>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('about.mission_title')}</h2>
             <p className="text-gray-700 mb-6">
-              Every year, millions of tons of food are wasted while many people struggle with 
-              food insecurity. We believe technology can bridge this gap by making surplus food 
-              accessible to everyone while helping businesses reduce waste and recover costs.
+              {t('about.mission_description')}
             </p>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">How We Help</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('about.help_title')}</h2>
             <ul className="list-disc list-inside text-gray-700 mb-6">
               <li>Reduce food waste by connecting surplus food with consumers</li>
               <li>Help businesses recover costs from unsold inventory</li>

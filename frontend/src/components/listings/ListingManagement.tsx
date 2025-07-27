@@ -14,6 +14,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { format } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 import { listingsApi, Listing, CreateListingData, UpdateListingData } from '../../lib/offline-api'
 import { useAuthStore } from '../../store/auth'
 import ListingForm from './ListingForm'
@@ -25,6 +26,7 @@ interface ListingManagementProps {
 export default function ListingManagement({ businessId }: ListingManagementProps) {
   const queryClient = useQueryClient()
   const { business } = useAuthStore()
+  const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)
   const [editingListing, setEditingListing] = useState<Listing | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -128,7 +130,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
   }
 
   const handleDeleteListing = async (id: string) => {
-    if (confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
+    if (confirm(t('components.listings.management.delete_confirm'))) {
       setDeletingId(id)
       try {
         await deleteMutation.mutateAsync(id)
@@ -147,7 +149,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
           <Clock size={12} className="mr-1" />
-          Pending Approval
+          {t('components.listings.management.status.pending_approval')}
         </span>
       )
     }
@@ -156,7 +158,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
           <Calendar size={12} className="mr-1" />
-          Scheduled
+          {t('components.listings.management.status.scheduled')}
         </span>
       )
     }
@@ -164,7 +166,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     if (now > availableUntil) {
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-          Expired
+          {t('components.listings.management.status.expired')}
         </span>
       )
     }
@@ -172,13 +174,13 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     return (
       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
         <CheckCircle size={12} className="mr-1" />
-        Active
+        {t('components.listings.management.status.active')}
       </span>
     )
   }
 
   const formatPrice = (price: number, isFree: boolean) => {
-    if (isFree) return 'Free'
+    if (isFree) return t('listing_detail.free')
     return `€${price.toFixed(2)}`
   }
 
@@ -196,7 +198,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
         <div className="flex items-center">
           <AlertCircle className="text-red-400 mr-2" size={20} />
           <p className="text-red-800">
-            Error loading listings: {error instanceof Error ? error.message : 'Unknown error'}
+            {t('components.listings.management.error_loading')}: {error instanceof Error ? error.message : t('components.listings.management.unknown_error')}
           </p>
         </div>
       </div>
@@ -208,7 +210,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Listing</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('components.listings.management.create_new_listing')}</h2>
         </div>
         
         <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -216,7 +218,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
             onSubmit={handleCreateListing}
             onCancel={() => setShowForm(false)}
             isLoading={createMutation.isPending}
-            submitLabel="Create Listing"
+            submitLabel={t('components.listings.management.create_listing')}
           />
         </div>
       </div>
@@ -228,7 +230,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Edit Listing</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('components.listings.management.edit_listing')}</h2>
         </div>
         
         <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -240,7 +242,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
             onSubmit={handleUpdateListing}
             onCancel={() => setEditingListing(null)}
             isLoading={updateMutation.isPending}
-            submitLabel="Update Listing"
+            submitLabel={t('components.listings.management.update_listing')}
           />
         </div>
       </div>
@@ -252,9 +254,9 @@ export default function ListingManagement({ businessId }: ListingManagementProps
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Manage Listings</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('components.listings.management.title')}</h2>
           <p className="text-gray-600 mt-1">
-            Create and manage your food listings for {business?.name}
+            {t('components.listings.management.subtitle', { businessName: business?.name })}
           </p>
         </div>
         <button
@@ -262,7 +264,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
           className="btn btn-primary flex items-center space-x-2"
         >
           <Plus size={20} />
-          <span>New Listing</span>
+          <span>{t('components.listings.management.create_new')}</span>
         </button>
       </div>
 
@@ -270,15 +272,15 @@ export default function ListingManagement({ businessId }: ListingManagementProps
       {listings.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
           <Package className="mx-auto text-gray-400 mb-4" size={48} />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No listings yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('components.listings.management.no_listings')}</h3>
           <p className="text-gray-600 mb-4">
-            Start by creating your first food listing to help reduce waste and reach customers.
+            {t('components.listings.management.create_first')}
           </p>
           <button
             onClick={() => setShowForm(true)}
             className="btn btn-primary"
           >
-            Create Your First Listing
+            {t('components.listings.management.create_first_listing')}
           </button>
         </div>
       ) : (
@@ -299,7 +301,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
                   {listing.image_url.startsWith('blob:') && (
                     <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
                       <Clock size={12} />
-                      <span>Syncing</span>
+                      <span>{t('components.listings.management.syncing')}</span>
                     </div>
                   )}
                 </div>
@@ -324,24 +326,24 @@ export default function ListingManagement({ businessId }: ListingManagementProps
 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Category:</span>
+                    <span className="text-gray-500">{t('components.listings.management.category')}:</span>
                     <span className="font-medium">{listing.category}</span>
                   </div>
                   
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Price:</span>
+                    <span className="text-gray-500">{t('components.listings.management.price')}:</span>
                     <span className="font-medium text-primary-600">
                       {formatPrice(listing.price, listing.is_free)}
                     </span>
                   </div>
                   
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Quantity:</span>
+                    <span className="text-gray-500">{t('components.listings.management.quantity')}:</span>
                     <span className="font-medium">{listing.quantity}</span>
                   </div>
                   
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Available until:</span>
+                    <span className="text-gray-500">{t('components.listings.management.available_until')}:</span>
                     <span className="font-medium">
                       {format(new Date(listing.available_until), 'MMM d, HH:mm')}
                     </span>
@@ -355,7 +357,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
                     className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
                   >
                     <Edit size={16} />
-                    <span>Edit</span>
+                    <span>{t('components.listings.management.edit')}</span>
                   </button>
                   
                   <button
@@ -368,7 +370,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
                     ) : (
                       <Trash2 size={16} />
                     )}
-                    <span>Delete</span>
+                    <span>{t('components.listings.management.delete')}</span>
                   </button>
                 </div>
               </div>

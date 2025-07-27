@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Loader } from '@googlemaps/js-api-loader'
+import { useTranslation } from 'react-i18next'
 import { Listing } from '../../lib/api'
 import { MapPin, Euro, Star } from 'lucide-react'
 
@@ -10,6 +11,7 @@ interface ListingsMapProps {
 }
 
 const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapProps) => {
+  const { t } = useTranslation()
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
@@ -50,12 +52,12 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
 
       } catch (err) {
         console.error('Error loading Google Maps:', err)
-        setError('Failed to load map')
+        setError(t('components.listings.map.load_error'))
       }
     }
 
     initMap()
-  }, [])
+  }, [t])
 
   // Update markers when listings change
   useEffect(() => {
@@ -101,7 +103,7 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
           <p class="text-sm text-gray-600 mb-2">${listing.description}</p>
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-1 text-sm text-gray-500">
-              <span>${businesses?.name || 'Unknown Business'}</span>
+              <span>${businesses?.name || t('components.listings.card.unknown_business')}</span>
               ${businesses?.google_rating ? `
                 <div class="flex items-center space-x-1 ml-2">
                   <span class="text-yellow-400">★</span>
@@ -110,7 +112,7 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
               ` : ''}
             </div>
             <div class="text-sm font-semibold ${listing.is_free ? 'text-green-600' : 'text-gray-900'}">
-              ${listing.is_free ? 'FREE' : `€${listing.price.toFixed(2)}`}
+              ${listing.is_free ? t('listing_detail.free') : `€${listing.price.toFixed(2)}`}
             </div>
           </div>
         </div>
@@ -137,14 +139,14 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
         }
       })
     }
-  }, [listings, isLoaded, onListingSelect])
+  }, [listings, isLoaded, onListingSelect, t])
 
   if (error) {
     return (
       <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-500">
           <MapPin size={48} className="mx-auto mb-2 opacity-50" />
-          <p>Unable to load map</p>
+          <p>{t('components.listings.map.unable_to_load')}</p>
           <p className="text-sm">{error}</p>
         </div>
       </div>
@@ -159,7 +161,7 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
         <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
           <div className="text-center text-gray-500">
             <div className="loading-spinner w-8 h-8 mx-auto mb-2" />
-            <p>Loading map...</p>
+            <p>{t('components.listings.map.loading')}</p>
           </div>
         </div>
       )}
@@ -170,11 +172,11 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <span>Free Items</span>
+              <span>{t('components.listings.map.legend.free_items')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full bg-primary-600"></div>
-              <span>Paid Items</span>
+              <span>{t('components.listings.map.legend.paid_items')}</span>
             </div>
           </div>
         </div>

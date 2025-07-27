@@ -5,10 +5,12 @@ import { ArrowLeft, MapPin, Clock, Star, Calendar, Package, Euro, Phone, Globe, 
 import { listingsApi } from '../lib/offline-api'
 import { formatDistanceToNow, format } from 'date-fns'
 import ListingsMap from '../components/listings/ListingsMap'
+import { useTranslation } from 'react-i18next'
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const {
     data: listing,
@@ -34,7 +36,7 @@ const ListingDetail = () => {
     try {
       return formatDistanceToNow(new Date(until), { addSuffix: true })
     } catch {
-      return 'Invalid date'
+      return t('listing_detail.invalid_date')
     }
   }
 
@@ -42,7 +44,7 @@ const ListingDetail = () => {
     try {
       return format(new Date(dateString), 'PPp')
     } catch {
-      return 'Invalid date'
+      return t('listing_detail.invalid_date')
     }
   }
 
@@ -67,10 +69,10 @@ const ListingDetail = () => {
           <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
             <AlertCircle className="text-red-500 mx-auto mb-4" size={48} />
             <h2 className="text-xl font-semibold text-red-800 mb-2">
-              Error loading listing
+              {t('listing_detail.error_loading')}
             </h2>
             <p className="text-red-700 mb-4">
-              {error instanceof Error ? error.message : 'Listing not found or failed to load.'}
+              {error instanceof Error ? error.message : t('listing_detail.listing_not_found')}
             </p>
             <div className="space-x-3">
               <button
@@ -78,13 +80,13 @@ const ListingDetail = () => {
                 className="btn btn-secondary"
               >
                 <ArrowLeft size={16} className="mr-2" />
-                Back to Listings
+                {t('listing_detail.back_to_listings')}
               </button>
               <button
                 onClick={() => window.location.reload()}
                 className="btn btn-primary"
               >
-                Try Again
+                {t('listing_detail.try_again')}
               </button>
             </div>
           </div>
@@ -127,11 +129,11 @@ const ListingDetail = () => {
       <div className="min-h-screen py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-            Listing not found
+            {t('listing_detail.listing_not_found')}
           </h2>
           <Link to="/listings" className="btn btn-primary">
             <ArrowLeft size={16} className="mr-2" />
-            Back to Listings
+            {t('listing_detail.back_to_listings')}
           </Link>
         </div>
       </div>
@@ -155,7 +157,7 @@ const ListingDetail = () => {
             className="btn btn-secondary mb-6"
           >
             <ArrowLeft size={16} className="mr-2" />
-            Back to Listings
+            {t('listing_detail.back_to_listings')}
           </button>
 
           {/* Main Content */}
@@ -172,7 +174,7 @@ const ListingDetail = () => {
                       </span>
                       {listing.quantity > 1 && (
                         <span className="badge bg-primary-100 text-primary-800">
-                          {listing.quantity} available
+                          {listing.quantity} {t('listing_detail.available')}
                         </span>
                       )}
                     </div>
@@ -184,7 +186,7 @@ const ListingDetail = () => {
                   <div className="text-right">
                     {listing.is_free ? (
                       <div className="text-2xl font-bold text-green-600">
-                        FREE
+                        {t('listing_detail.free')}
                       </div>
                     ) : (
                       <div className="text-2xl font-bold text-gray-900">
@@ -206,7 +208,7 @@ const ListingDetail = () => {
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                       <div className="text-center">
                         <span className="text-6xl mb-2 block">🍽️</span>
-                        <p>No image available</p>
+                        <p>{t('listing_detail.no_image_available')}</p>
                       </div>
                     </div>
                   )}
@@ -215,7 +217,7 @@ const ListingDetail = () => {
                 {/* Description */}
                 <div className="prose prose-gray max-w-none">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Description
+                    {t('listing_detail.description')}
                   </h3>
                   <p className="text-gray-700 leading-relaxed">
                     {listing.description}
@@ -226,15 +228,15 @@ const ListingDetail = () => {
               {/* Business Info */}
               <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Business Information
+                  {t('listing_detail.business_information')}
                 </h3>
                 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <MapPin size={20} className="text-gray-400 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-gray-900">{businesses?.name || 'Unknown Business'}</h4>
-                      <p className="text-gray-600">{businesses?.address || 'Address not available'}</p>
+                      <h4 className="font-medium text-gray-900">{businesses?.name || t('listing_detail.unknown_business')}</h4>
+                      <p className="text-gray-600">{businesses?.address || t('listing_detail.address_not_available')}</p>
                     </div>
                   </div>
 
@@ -243,9 +245,9 @@ const ListingDetail = () => {
                       <Star size={20} className="text-yellow-400 fill-current" />
                       <div>
                         <span className="font-medium text-gray-900">
-                          {businesses.google_rating} stars
+                          {businesses.google_rating} {t('listing_detail.stars')}
                         </span>
-                        <p className="text-sm text-gray-600">Google rating</p>
+                        <p className="text-sm text-gray-600">{t('listing_detail.google_rating')}</p>
                       </div>
                     </div>
                   )}
@@ -259,7 +261,7 @@ const ListingDetail = () => {
                         rel="noopener noreferrer"
                         className="text-primary-600 hover:text-primary-700 font-medium"
                       >
-                        View on Google Maps
+                        {t('listing_detail.view_on_google_maps')}
                       </a>
                     </div>
                   )}
@@ -271,7 +273,7 @@ const ListingDetail = () => {
                 <div className="card p-0 overflow-hidden">
                   <div className="p-6 pb-4">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Location
+                      {t('listing_detail.location')}
                     </h3>
                   </div>
                   <ListingsMap
@@ -287,7 +289,7 @@ const ListingDetail = () => {
               {/* Availability */}
               <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Availability
+                  {t('listing_detail.availability')}
                 </h3>
                 
                 <div className="space-y-4">
@@ -295,10 +297,10 @@ const ListingDetail = () => {
                     <Clock size={20} className="text-orange-500 mt-0.5" />
                     <div>
                       <p className="font-medium text-gray-900">
-                        Available {formatTimeRemaining(listing.available_until)}
+                        {t('listing_detail.available_until_label')} {formatTimeRemaining(listing.available_until)}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Until {formatDateTime(listing.available_until)}
+                        {t('listing_detail.until')} {formatDateTime(listing.available_until)}
                       </p>
                     </div>
                   </div>
@@ -307,7 +309,7 @@ const ListingDetail = () => {
                     <Calendar size={20} className="text-gray-400 mt-0.5" />
                     <div>
                       <p className="font-medium text-gray-900">
-                        Available from
+                        {t('listing_detail.available_from')}
                       </p>
                       <p className="text-sm text-gray-600">
                         {formatDateTime(listing.available_from)}
@@ -319,10 +321,10 @@ const ListingDetail = () => {
                     <Package size={20} className="text-gray-400 mt-0.5" />
                     <div>
                       <p className="font-medium text-gray-900">
-                        Quantity
+                        {t('listing_detail.quantity')}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {listing.quantity} item{listing.quantity !== 1 ? 's' : ''} available
+                        {listing.quantity} {listing.quantity === 1 ? t('listing_detail.item_available') : t('listing_detail.items_available')}
                       </p>
                     </div>
                   </div>
@@ -332,10 +334,10 @@ const ListingDetail = () => {
               {/* Action Button */}
               <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Interested?
+                  {t('listing_detail.interested')}
                 </h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  Contact the business directly to reserve this item.
+                  {t('listing_detail.contact_business_message')}
                 </p>
                 
                 <div className="space-y-3">
@@ -347,20 +349,19 @@ const ListingDetail = () => {
                       className="btn btn-primary w-full"
                     >
                       <MapPin size={16} className="mr-2" />
-                      Get Directions
+                      {t('listing_detail.get_directions')}
                     </a>
                   )}
                   
                   <button className="btn btn-secondary w-full">
                     <Phone size={16} className="mr-2" />
-                    Contact Business
+                    {t('listing_detail.contact_business')}
                   </button>
                 </div>
                 
                 <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-yellow-800 text-xs">
-                    <strong>Note:</strong> Please contact the business to confirm availability 
-                    and arrange pickup times before visiting.
+                    <strong>{t('listing_detail.note_label')}</strong> {t('listing_detail.note_message')}
                   </p>
                 </div>
               </div>
@@ -368,33 +369,33 @@ const ListingDetail = () => {
               {/* Listing Details */}
               <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Listing Details
+                  {t('listing_detail.listing_details')}
                 </h3>
                 
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Listed</span>
+                    <span className="text-gray-600">{t('listing_detail.listed')}</span>
                     <span className="text-gray-900">
                       {formatDistanceToNow(new Date(listing.created_at), { addSuffix: true })}
                     </span>
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Updated</span>
+                    <span className="text-gray-600">{t('listing_detail.updated')}</span>
                     <span className="text-gray-900">
                       {formatDistanceToNow(new Date(listing.updated_at), { addSuffix: true })}
                     </span>
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Category</span>
+                    <span className="text-gray-600">{t('listing_detail.category')}</span>
                     <span className="text-gray-900">{listing.category}</span>
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Type</span>
+                    <span className="text-gray-600">{t('listing_detail.type')}</span>
                     <span className="text-gray-900">
-                      {listing.is_free ? 'Free' : 'Paid'}
+                      {listing.is_free ? t('listing_detail.free') : t('listing_detail.paid')}
                     </span>
                   </div>
                 </div>

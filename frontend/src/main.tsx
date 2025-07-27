@@ -6,6 +6,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import { Toaster } from 'sonner'
 import App from './App'
 import './index.css'
+import './lib/i18n'
 
 // Create a client for React Query
 const queryClient = new QueryClient({

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Download, CheckCircle, AlertCircle } from 'lucide-react'
 import { dataPreloader } from '../../lib/data-preloader'
+import { useTranslation } from 'react-i18next'
 
 export default function DataPreloadIndicator() {
   const [status, setStatus] = useState({
@@ -9,6 +10,7 @@ export default function DataPreloadIndicator() {
     hasLocalData: false
   })
   const [showIndicator, setShowIndicator] = useState(false)
+  const { t } = useTranslation()
 
   useEffect(() => {
     const updateStatus = async () => {
@@ -65,8 +67,8 @@ export default function DataPreloadIndicator() {
           <>
             <Download size={16} className="text-blue-500 animate-bounce" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Loading data...</p>
-              <p className="text-xs text-gray-600">Preparing for offline use</p>
+              <p className="text-sm font-medium text-gray-900">{t('components.ui.data_preload_indicator.preloading')}...</p>
+              <p className="text-xs text-gray-600">{t('components.ui.data_preload_indicator.progress')}</p>
             </div>
           </>
         )}
@@ -75,8 +77,8 @@ export default function DataPreloadIndicator() {
           <>
             <CheckCircle size={16} className="text-green-500" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Data ready</p>
-              <p className="text-xs text-gray-600">Available offline</p>
+              <p className="text-sm font-medium text-gray-900">{t('components.ui.data_preload_indicator.completed')}</p>
+              <p className="text-xs text-gray-600">{t('components.ui.online_status.offline')}</p>
             </div>
           </>
         )}

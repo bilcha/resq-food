@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MapPin, Clock, Star, Euro } from 'lucide-react'
 import { Listing } from '../../lib/api'
 import { formatDistanceToNow } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 
 interface ListingCardProps {
   listing: Listing
@@ -20,6 +21,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
     quantity,
     businesses
   } = listing
+  const { t } = useTranslation()
 
   const formatTimeRemaining = (until: string) => {
     try {
@@ -64,7 +66,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           <div className="absolute top-3 left-3">
             {is_free ? (
               <span className="badge bg-green-600 text-white font-semibold">
-                FREE
+{t('listing_detail.free')}
               </span>
             ) : (
               <span className="badge bg-white text-gray-900 font-semibold shadow-sm">
@@ -78,7 +80,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           {quantity > 1 && (
             <div className="absolute top-3 right-3">
               <span className="badge bg-primary-600 text-white">
-                {quantity} available
+                {quantity} {t('listing_detail.available')}
               </span>
             </div>
           )}
@@ -105,7 +107,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           <div className="flex items-center text-sm text-gray-500 space-x-4">
             <div className="flex items-center space-x-1">
               <MapPin size={14} />
-              <span className="truncate">{businesses?.name || 'Unknown Business'}</span>
+              <span className="truncate">{businesses?.name || t('components.listings.card.unknown_business')}</span>
             </div>
             {businesses?.google_rating && (
               <div className="flex items-center space-x-1">
@@ -118,7 +120,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           {/* Time Remaining */}
           <div className="flex items-center text-sm text-orange-600 space-x-1">
             <Clock size={14} />
-            <span>Available {formatTimeRemaining(available_until)}</span>
+            <span>{t('components.listings.card.available_until')} {formatTimeRemaining(available_until)}</span>
           </div>
         </div>
       </div>

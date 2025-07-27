@@ -1,11 +1,13 @@
 import { useOnlineStatus } from '../../hooks/useOnlineStatus'
 import { Wifi, WifiOff, RefreshCw } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function OnlineStatusIndicator() {
   const { isOnline, wasOffline } = useOnlineStatus()
   const [showReconnectedMessage, setShowReconnectedMessage] = useState(false)
   const [syncing, setSyncing] = useState(false)
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (isOnline && wasOffline) {
@@ -36,7 +38,7 @@ export default function OnlineStatusIndicator() {
     return (
       <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
         <WifiOff size={16} />
-        <span className="text-sm font-medium">Offline Mode</span>
+        <span className="text-sm font-medium">{t('components.ui.online_status.offline')}</span>
       </div>
     )
   }
@@ -50,7 +52,7 @@ export default function OnlineStatusIndicator() {
           <Wifi size={16} />
         )}
         <span className="text-sm font-medium">
-          {syncing ? 'Syncing data...' : 'Back online'}
+          {syncing ? t('components.ui.offline_data_status.syncing') : t('components.ui.online_status.reconnected')}
         </span>
       </div>
     )

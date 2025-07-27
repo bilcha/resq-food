@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { Calendar, Upload, X, Loader2, Euro, Package, Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { FOOD_CATEGORIES, CreateListingData, UpdateListingData, uploadApi } from '../../lib/offline-api'
 
 interface ListingFormProps {
@@ -17,6 +18,7 @@ export default function ListingForm({
   isLoading = false,
   submitLabel = 'Create Listing'
 }: ListingFormProps) {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState<CreateListingData>({
     title: initialData?.title || '',
     description: initialData?.description || '',
@@ -37,29 +39,29 @@ export default function ListingForm({
     const newErrors: Record<string, string> = {}
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Title is required'
+      newErrors.title = t('components.listings.form.validation.title_required')
     }
     if (!formData.description.trim()) {
-      newErrors.description = 'Description is required'
+      newErrors.description = t('components.listings.form.validation.description_required')
     }
     if (!formData.category) {
-      newErrors.category = 'Category is required'
+      newErrors.category = t('components.listings.form.validation.category_required')
     }
     if (!formData.is_free && (!formData.price || formData.price <= 0)) {
-      newErrors.price = 'Price must be greater than 0 for paid listings'
+      newErrors.price = t('components.listings.form.validation.price_required')
     }
     if (!formData.available_from) {
-      newErrors.available_from = 'Available from date is required'
+      newErrors.available_from = t('components.listings.form.validation.date_from_required')
     }
     if (!formData.available_until) {
-      newErrors.available_until = 'Available until date is required'
+      newErrors.available_until = t('components.listings.form.validation.date_until_required')
     }
     if (formData.available_from && formData.available_until && 
         new Date(formData.available_from) >= new Date(formData.available_until)) {
-      newErrors.available_until = 'End date must be after start date'
+      newErrors.available_until = t('components.listings.form.validation.date_invalid')
     }
     if (!formData.quantity || formData.quantity < 1) {
-      newErrors.quantity = 'Quantity must be at least 1'
+      newErrors.quantity = t('components.listings.form.validation.quantity_required')
     }
 
     setErrors(newErrors)
@@ -93,7 +95,7 @@ export default function ListingForm({
       }
     } catch (error) {
       console.error('Image upload error:', error)
-      setErrors(prev => ({ ...prev, image_url: 'Failed to upload image' }))
+      setErrors(prev => ({ ...prev, image_url: t('components.listings.form.image_upload_failed') }))
     } finally {
       setImageUploading(false)
     }
@@ -104,13 +106,13 @@ export default function ListingForm({
     if (file) {
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setErrors(prev => ({ ...prev, image_url: 'Image must be less than 5MB' }))
+        setErrors(prev => ({ ...prev, image_url: t('components.listings.form.image_size_error') }))
         return
       }
       
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({ ...prev, image_url: 'Please select a valid image file' }))
+        setErrors(prev => ({ ...prev, image_url: t('components.listings.form.image_type_error') }))
         return
       }
 
@@ -146,7 +148,7 @@ export default function ListingForm({
       {/* Title */}
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-          Listing Title *
+          {t('components.listings.form.title')} *
         </label>
         <input
           type="text"
@@ -156,7 +158,7 @@ export default function ListingForm({
           className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
             errors.title ? 'border-red-500' : 'border-gray-300'
           }`}
-          placeholder="e.g., Fresh Bakery Surprise Box"
+          placeholder={t('components.listings.form.placeholders.title')}
         />
         {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
       </div>
@@ -164,7 +166,7 @@ export default function ListingForm({
       {/* Description */}
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description *
+          {t('components.listings.form.description')} *
         </label>
         <textarea
           id="description"
@@ -174,7 +176,7 @@ export default function ListingForm({
           className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
             errors.description ? 'border-red-500' : 'border-gray-300'
           }`}
-          placeholder="Describe what's included in this surprise package..."
+          placeholder={t('components.listings.form.placeholders.description')}
         />
         {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
       </div>
@@ -182,7 +184,7 @@ export default function ListingForm({
       {/* Category */}
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-          Category *
+          {t('components.listings.form.category')} *
         </label>
         <select
           id="category"
@@ -192,7 +194,7 @@ export default function ListingForm({
             errors.category ? 'border-red-500' : 'border-gray-300'
           }`}
         >
-          <option value="">Select a category</option>
+          <option value="">{t('components.listings.form.select_category')}</option>
           {FOOD_CATEGORIES.map(category => (
             <option key={category} value={category}>
               {category}
@@ -216,14 +218,14 @@ export default function ListingForm({
               }))}
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
             />
-            <span>Free listing</span>
+            <span>{t('components.listings.form.is_free')}</span>
           </label>
         </div>
         
         {!formData.is_free && (
           <div>
             <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-              Price (€) *
+              {t('components.listings.form.price')} (€) *
             </label>
             <div className="relative">
               <Euro className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
@@ -237,7 +239,7 @@ export default function ListingForm({
                 className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                   errors.price ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="0.00"
+                placeholder={t('components.listings.form.placeholders.price')}
               />
             </div>
             {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
@@ -248,7 +250,7 @@ export default function ListingForm({
       {/* Quantity */}
       <div>
         <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">
-          Quantity Available *
+          {t('components.listings.form.quantity')} *
         </label>
         <div className="relative">
           <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
@@ -271,7 +273,7 @@ export default function ListingForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="available_from" className="block text-sm font-medium text-gray-700 mb-1">
-            Available From *
+            {t('components.listings.form.available_from')} *
           </label>
           <div className="relative">
             <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
@@ -290,7 +292,7 @@ export default function ListingForm({
 
         <div>
           <label htmlFor="available_until" className="block text-sm font-medium text-gray-700 mb-1">
-            Available Until *
+            {t('components.listings.form.available_until')} *
           </label>
           <div className="relative">
             <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
@@ -311,20 +313,20 @@ export default function ListingForm({
       {/* Image Upload */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Listing Image
+          {t('components.listings.form.image')}
         </label>
         
         {formData.image_url ? (
           <div className="relative inline-block">
             <img
               src={formData.image_url}
-              alt="Listing preview"
+              alt={t('components.listings.form.image_preview')}
               className="w-32 h-32 object-cover rounded-lg border border-gray-300"
             />
             {formData.image_url.startsWith('blob:') && (
               <div className="absolute -top-2 -left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
                 <Clock size={12} />
-                <span>Offline</span>
+                <span>{t('components.listings.form.offline')}</span>
               </div>
             )}
             <button
@@ -356,17 +358,17 @@ export default function ListingForm({
                 <Upload size={24} />
               )}
               <span className="text-sm">
-                {imageUploading ? 'Uploading...' : 'Click to upload image'}
+                {imageUploading ? t('components.listings.form.uploading') : t('components.listings.form.upload_image')}
               </span>
             </button>
           </div>
         )}
         {errors.image_url && <p className="text-red-500 text-sm mt-1">{errors.image_url}</p>}
         <p className="text-xs text-gray-500 mt-1">
-          Maximum file size: 5MB. Supported formats: JPG, PNG, WebP
+          {t('components.listings.form.image_info')}
           {!navigator.onLine && (
             <span className="block text-blue-600 mt-1">
-              📱 Offline mode: Images will be uploaded when connection is restored
+              📱 {t('components.listings.form.offline_mode')}
             </span>
           )}
         </p>
@@ -379,7 +381,7 @@ export default function ListingForm({
           onClick={onCancel}
           className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          Cancel
+          {t('components.listings.form.cancel')}
         </button>
         <button
           type="submit"

@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 
 const Home = () => {
+  const { t } = useTranslation()
   return (
     <>
       <Helmet>
-        <title>ResQ Food - Reduce Food Waste</title>
-        <meta name="description" content="Connect with businesses to get surplus food at discounted prices while helping reduce food waste." />
+        <title>{t('home.title')}</title>
+        <meta name="description" content={t('home.meta_description')} />
       </Helmet>
       
       <div className="min-h-screen">
@@ -15,17 +17,17 @@ const Home = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Rescue Food, Save Planet
+                {t('home.hero_title')}
               </h1>
               <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-                Connect with local businesses to get surplus food at discounted prices while helping reduce food waste.
+                {t('home.hero_subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/listings" className="btn btn-lg bg-white text-primary-600 hover:bg-gray-100">
-                  Browse Listings
+                  {t('common.browse_listings')}
                 </Link>
                 <Link to="/register" className="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-primary-600">
-                  Register Business
+                  {t('navigation.register_business')}
                 </Link>
               </div>
             </div>
@@ -37,10 +39,10 @@ const Home = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                How It Works
+                {t('common.how_it_works')}
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Simple steps to reduce food waste and save money
+                {t('home.features_subtitle')}
               </p>
             </div>
             
@@ -49,9 +51,9 @@ const Home = () => {
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">🏪</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Businesses List</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('home.step1_title')}</h3>
                 <p className="text-gray-600">
-                  Local businesses list their surplus food at discounted prices
+                  {t('home.step1_description')}
                 </p>
               </div>
               
@@ -59,9 +61,9 @@ const Home = () => {
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">📱</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Browse & Reserve</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('home.step2_title')}</h3>
                 <p className="text-gray-600">
-                  Find nearby listings and reserve your surprise food packages
+                  {t('home.step2_description')}
                 </p>
               </div>
               
@@ -69,9 +71,9 @@ const Home = () => {
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">🌱</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Collect & Enjoy</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('home.step3_title')}</h3>
                 <p className="text-gray-600">
-                  Pick up your food and enjoy while helping the environment
+                  {t('home.step3_description')}
                 </p>
               </div>
             </div>
@@ -82,13 +84,13 @@ const Home = () => {
         <section className="bg-gray-100 py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Ready to Start?
+              {t('common.ready_to_start')}
             </h2>
             <p className="text-xl text-gray-600 mb-8">
-              Join thousands of people and businesses fighting food waste together.
+              {t('home.cta_subtitle')}
             </p>
             <Link to="/listings" className="btn btn-primary btn-lg">
-              Explore Listings
+              {t('common.explore_listings')}
             </Link>
           </div>
         </section>

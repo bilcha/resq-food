@@ -5,12 +5,14 @@ import { Building2, Package, BarChart3, Settings, AlertTriangle } from 'lucide-r
 import ListingManagement from '../components/listings/ListingManagement'
 import BusinessProfileForm from '../components/business/BusinessProfileForm'
 import OfflineDataStatus from '../components/ui/OfflineDataStatus'
+import { useTranslation } from 'react-i18next'
 
 type TabType = 'listings' | 'analytics' | 'profile'
 
 const BusinessDashboard = () => {
   const { business, user, fetchBusinessProfile } = useAuthStore()
   const [activeTab, setActiveTab] = useState<TabType>('listings')
+  const { t } = useTranslation()
 
   const handleBusinessUpdate = (updatedBusiness: any) => {
     // Refetch the business profile to ensure we have the latest data
@@ -21,7 +23,7 @@ const BusinessDashboard = () => {
     return (
       <>
         <Helmet>
-          <title>Business Dashboard - ResQ Food</title>
+          <title>{t('business_dashboard.title')}</title>
         </Helmet>
         
         <div className="min-h-screen py-12">

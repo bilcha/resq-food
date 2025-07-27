@@ -1,65 +1,64 @@
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 
 const Contact = () => {
+  const { t } = useTranslation()
   return (
     <>
       <Helmet>
-        <title>Contact - ResQ Food</title>
-        <meta name="description" content="Get in touch with the ResQ Food team. We're here to help with any questions or support." />
+        <title>{t('contact.title')}</title>
+        <meta name="description" content={t('contact.meta_description')} />
       </Helmet>
       
       <div className="min-h-screen py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Contact Us
+              {t('contact.page_title')}
             </h1>
             <p className="text-xl text-gray-600">
-              We'd love to hear from you. Get in touch with our team.
+              {t('contact.page_subtitle')}
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Get in Touch</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('contact.get_in_touch')}</h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-gray-900">Email</h3>
+                  <h3 className="font-semibold text-gray-900">{t('contact.email')}</h3>
                   <p className="text-gray-600">hello@resqfood.com</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Support</h3>
+                  <h3 className="font-semibold text-gray-900">{t('contact.support')}</h3>
                   <p className="text-gray-600">support@resqfood.com</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Business Partnerships</h3>
+                  <h3 className="font-semibold text-gray-900">{t('contact.business_partnerships')}</h3>
                   <p className="text-gray-600">partnerships@resqfood.com</p>
                 </div>
               </div>
             </div>
             
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('contact.faq_title')}</h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-gray-900">How does ResQ Food work?</h3>
+                  <h3 className="font-semibold text-gray-900">{t('contact.faq_q1')}</h3>
                   <p className="text-gray-600">
-                    Businesses list their surplus food at discounted prices, and consumers 
-                    can browse and purchase these items to reduce waste.
+                    {t('contact.faq_a1')}
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Is it safe to eat surplus food?</h3>
+                  <h3 className="font-semibold text-gray-900">{t('contact.faq_q2')}</h3>
                   <p className="text-gray-600">
-                    Yes! All food listed on our platform is safe to eat and meets quality 
-                    standards. It's simply surplus that would otherwise go to waste.
+                    {t('contact.faq_a2')}
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">How can businesses join?</h3>
+                  <h3 className="font-semibold text-gray-900">{t('contact.faq_q3')}</h3>
                   <p className="text-gray-600">
-                    Businesses can register on our platform and start listing their surplus 
-                    food immediately after approval.
+                    {t('contact.faq_a3')}
                   </p>
                 </div>
               </div>

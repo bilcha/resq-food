@@ -6,6 +6,7 @@ import { Business, BusinessUpdateData, businessApi } from '../../lib/offline-api
 import { useAuthStore } from '../../store/auth'
 import { MapPin, Save, Loader2, AlertCircle, Check } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 
 interface BusinessProfileFormProps {
   business: Business
@@ -28,6 +29,7 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
     address: string
   } | null>(null)
   const [useManualAddress, setUseManualAddress] = useState(false)
+  const { t } = useTranslation()
   
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
@@ -253,12 +255,12 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
         description: updatedBusiness.description || ''
       })
       
-      toast.success('Business profile updated successfully!')
+      toast.success(t('components.business.profile_form.success_message'))
       onUpdate?.(updatedBusiness)
       
     } catch (error) {
       console.error('Error updating business profile:', error)
-      toast.error('Failed to update business profile. Please try again.')
+      toast.error(t('components.business.profile_form.error_message'))
     } finally {
       setIsLoading(false)
     }
@@ -268,10 +270,10 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
-          Business Profile
+          {t('components.business.profile_form.title')}
         </h2>
         <p className="text-gray-600">
-          Update your business information and location.
+          {t('components.business.profile_form.subtitle')}
         </p>
       </div>
 
@@ -279,17 +281,17 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
         {/* Business Name */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            Business Name *
+            {t('components.business.profile_form.business_name')} *
           </label>
           <input
             {...register('name', { 
-              required: 'Business name is required',
-              maxLength: { value: 255, message: 'Business name must be less than 255 characters' }
+              required: t('components.business.profile_form.validation.name_required'),
+              maxLength: { value: 255, message: t('components.business.profile_form.validation.name_max_length') }
             })}
             type="text"
             id="name"
             className={`input w-full ${errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-            placeholder="Enter your business name"
+            placeholder={t('components.business.profile_form.placeholders.business_name')}
           />
           {errors.name && (
             <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -302,7 +304,7 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
         {/* Email (Read-only) */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-            Email Address
+            {t('components.business.profile_form.email_address')}
           </label>
           <input
             type="email"
@@ -312,23 +314,23 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
             className="input w-full bg-gray-50 text-gray-500 cursor-not-allowed"
           />
           <p className="mt-1 text-sm text-gray-500">
-            Email cannot be changed as it's your account identifier.
+            {t('components.business.profile_form.email_readonly')}
           </p>
         </div>
 
         {/* Phone */}
         <div>
           <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-            Phone Number
+            {t('components.business.profile_form.phone_number')}
           </label>
           <input
             {...register('phone', {
-              maxLength: { value: 50, message: 'Phone number must be less than 50 characters' }
+              maxLength: { value: 50, message: t('components.business.profile_form.validation.phone_invalid') }
             })}
             type="tel"
             id="phone"
             className={`input w-full ${errors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-            placeholder="Enter your phone number"
+            placeholder={t('components.business.profile_form.placeholders.phone')}
           />
           {errors.phone && (
             <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -342,14 +344,14 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
         <div>
           <div className="flex items-center justify-between mb-4">
             <label className="block text-sm font-medium text-gray-700">
-              Business Location
+              {t('components.business.profile_form.business_location')}
             </label>
             <button
               type="button"
               onClick={() => setUseManualAddress(!useManualAddress)}
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
-              {useManualAddress ? 'Use Map Instead' : 'Enter Address Manually'}
+              {useManualAddress ? t('components.business.profile_form.use_map_instead') : t('components.business.profile_form.enter_manually')}
             </button>
           </div>
 
@@ -359,11 +361,11 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
               <input
                 {...register('address')}
                 type="text"
-                placeholder="Enter your business address"
+                placeholder={t('components.business.profile_form.placeholders.address')}
                 className="input w-full"
               />
               <p className="mt-1 text-sm text-gray-500">
-                Enter your complete business address manually.
+                {t('components.business.profile_form.enter_complete_address')}
               </p>
             </div>
           ) : (
@@ -400,7 +402,7 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
                   <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center">
                     <div className="text-center text-gray-500">
                       <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin" />
-                      <p>Loading map...</p>
+                      <p>{t('components.business.profile_form.loading_map')}</p>
                     </div>
                   </div>
                 )}
@@ -411,7 +413,7 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
                     <div className="flex items-start space-x-2">
                       <MapPin size={16} className="text-primary-600 mt-0.5 flex-shrink-0" />
                       <div className="text-sm">
-                        <p className="font-medium text-gray-900">Selected Location:</p>
+                        <p className="font-medium text-gray-900">{t('components.business.profile_form.selected_location')}</p>
                         <p className="text-gray-600 mt-1">{selectedLocation.address}</p>
                       </div>
                     </div>
@@ -425,24 +427,24 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
         {/* Description */}
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-            Business Description
+            {t('components.business.profile_form.business_description')}
           </label>
           <textarea
             {...register('description')}
             id="description"
             rows={4}
             className="input w-full resize-none"
-            placeholder="Tell customers about your business..."
+            placeholder={t('components.business.profile_form.placeholders.description')}
           />
           <p className="mt-1 text-sm text-gray-500">
-            Describe your business, specialties, and what makes you unique.
+            {t('components.business.profile_form.describe_business')}
           </p>
         </div>
 
         {/* Submit Button */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
           <div className="text-sm text-gray-500">
-            {isDirty && '• You have unsaved changes'}
+            {isDirty && `• ${t('components.business.profile_form.no_changes')}`}
           </div>
           
           <button
@@ -453,12 +455,12 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
             {isLoading ? (
               <>
                 <Loader2 size={16} className="mr-2 animate-spin" />
-                Updating...
+                {t('components.business.profile_form.saving')}
               </>
             ) : (
               <>
                 <Save size={16} className="mr-2" />
-                Update Profile
+                {t('components.business.profile_form.save_changes')}
               </>
             )}
           </button>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Search, Filter, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ListingFilters, FOOD_CATEGORIES } from '../../lib/api'
 
 interface ListingFiltersProps {
@@ -9,6 +10,7 @@ interface ListingFiltersProps {
 }
 
 const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: ListingFiltersProps) => {
+  const { t } = useTranslation()
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [localFilters, setLocalFilters] = useState(filters)
 
@@ -46,7 +48,7 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
           <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search listings, businesses..."
+            placeholder={t('components.listings.filters.search_placeholder')}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             value={filters.search || ''}
             onChange={(e) => handleSearchChange(e.target.value)}
@@ -61,7 +63,7 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
           disabled={isLoading}
         >
           <Filter size={16} className="mr-2" />
-          Filters
+          {t('components.listings.filters.filters_label')}
           {hasActiveFilters && (
             <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           )}
@@ -74,13 +76,13 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Category Filter */}
             <div>
-              <label className="label">Category</label>
+              <label className="label">{t('components.listings.filters.category')}</label>
               <select
                 className="input"
                 value={localFilters.category || ''}
                 onChange={(e) => handleFilterChange('category', e.target.value)}
               >
-                <option value="">All Categories</option>
+                <option value="">{t('components.listings.filters.category_all')}</option>
                 {FOOD_CATEGORIES.map(category => (
                   <option key={category} value={category}>
                     {category}
@@ -91,7 +93,7 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
 
             {/* Price Range */}
             <div>
-              <label className="label">Min Price (€)</label>
+              <label className="label">{t('components.listings.filters.min_price')} (€)</label>
               <input
                 type="number"
                 min="0"
@@ -104,7 +106,7 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
             </div>
 
             <div>
-              <label className="label">Max Price (€)</label>
+              <label className="label">{t('components.listings.filters.max_price')} (€)</label>
               <input
                 type="number"
                 min="0"
@@ -118,15 +120,15 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
 
             {/* Free Items */}
             <div>
-              <label className="label">Type</label>
+              <label className="label">{t('components.listings.filters.type')}</label>
               <select
                 className="input"
                 value={localFilters.is_free === undefined ? '' : String(localFilters.is_free)}
                 onChange={(e) => handleFilterChange('is_free', e.target.value === '' ? undefined : e.target.value === 'true')}
               >
-                <option value="">All Items</option>
-                <option value="true">Free Only</option>
-                <option value="false">Paid Only</option>
+                <option value="">{t('components.listings.filters.price_all')}</option>
+                <option value="true">{t('components.listings.filters.price_free')}</option>
+                <option value="false">{t('components.listings.filters.price_paid')}</option>
               </select>
             </div>
           </div>
@@ -138,13 +140,13 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
               className="btn btn-secondary"
             >
               <X size={16} className="mr-2" />
-              Reset
+              {t('components.listings.filters.reset')}
             </button>
             <button
               onClick={applyFilters}
               className="btn btn-primary"
             >
-              Apply Filters
+              {t('components.listings.filters.apply_filters')}
             </button>
           </div>
         </div>

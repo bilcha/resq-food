@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import { businessApi } from '../lib/api'
+import { useTranslation } from 'react-i18next'
 
 interface FormData {
   email: string
@@ -28,6 +29,7 @@ interface FormErrors {
 const Register = () => {
   const navigate = useNavigate()
   const { register, user } = useAuthStore()
+  const { t } = useTranslation()
   
   const [formData, setFormData] = useState<FormData>({
     email: '',
@@ -47,40 +49,40 @@ const Register = () => {
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = 'Email is required'
+      newErrors.email = t('register.validation.email_required')
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid'
+      newErrors.email = t('register.validation.email_invalid')
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Password is required'
+      newErrors.password = t('register.validation.password_required')
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
+      newErrors.password = t('register.validation.password_min_length')
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password'
+      newErrors.confirmPassword = t('register.validation.confirm_password_required')
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
+      newErrors.confirmPassword = t('register.validation.passwords_no_match')
     }
 
     // Business name validation
     if (!formData.businessName) {
-      newErrors.businessName = 'Business name is required'
+      newErrors.businessName = t('register.validation.business_name_required')
     } else if (formData.businessName.length < 2) {
-      newErrors.businessName = 'Business name must be at least 2 characters'
+      newErrors.businessName = t('register.validation.business_name_min_length')
     }
 
     // Phone validation (optional but if provided, should be valid)
     if (formData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
-      newErrors.phone = 'Please enter a valid phone number'
+      newErrors.phone = t('register.validation.phone_invalid')
     }
 
     // Address validation
     if (!formData.address) {
-      newErrors.address = 'Business address is required'
+      newErrors.address = t('register.validation.address_required')
     }
 
     setErrors(newErrors)
@@ -115,14 +117,14 @@ const Register = () => {
       console.error('Registration error:', error)
       
       // Handle Firebase auth errors
-      let errorMessage = 'Registration failed. Please try again.'
+      let errorMessage = t('register.errors.general')
       
       if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'This email is already registered. Please use a different email or try logging in.'
+        errorMessage = t('register.errors.email_in_use')
       } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak. Please choose a stronger password.'
+        errorMessage = t('register.errors.weak_password')
       } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address.'
+        errorMessage = t('register.errors.invalid_email')
       }
       
       setErrors({ general: errorMessage })
@@ -144,18 +146,18 @@ const Register = () => {
   return (
     <>
       <Helmet>
-        <title>Register Business - ResQ Food</title>
-        <meta name="description" content="Register your business with ResQ Food to start listing surplus food." />
+        <title>{t('register.title')}</title>
+        <meta name="description" content={t('register.meta_description')} />
       </Helmet>
       
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl w-full space-y-8">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              Register your business
+              {t('register.page_title')}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              Join the fight against food waste
+              {t('register.page_subtitle')}
             </p>
           </div>
           
@@ -170,7 +172,7 @@ const Register = () => {
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email address *
+                  {t('register.email_label')}{t('register.required_field')}
                 </label>
                 <input
                   id="email"
@@ -182,7 +184,7 @@ const Register = () => {
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                     errors.email ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                  placeholder="your-business@example.com"
+                  placeholder={t('register.email_placeholder')}
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
@@ -191,7 +193,7 @@ const Register = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Password *
+                    {t('register.password_label')}{t('register.required_field')}
                   </label>
                   <input
                     id="password"
@@ -203,14 +205,14 @@ const Register = () => {
                     className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                       errors.password ? 'border-red-300' : 'border-gray-300'
                     } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                    placeholder="Password"
+                    placeholder={t('register.password_placeholder')}
                   />
                   {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                 </div>
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                    Confirm Password *
+                    {t('register.confirm_password_label')}{t('register.required_field')}
                   </label>
                   <input
                     id="confirmPassword"
@@ -222,7 +224,7 @@ const Register = () => {
                     className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                       errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                     } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                    placeholder="Confirm Password"
+                    placeholder={t('register.confirm_password_placeholder')}
                   />
                   {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
                 </div>
@@ -231,7 +233,7 @@ const Register = () => {
               {/* Business Name */}
               <div>
                 <label htmlFor="businessName" className="block text-sm font-medium text-gray-700">
-                  Business Name *
+                  {t('register.business_name_label')}{t('register.required_field')}
                 </label>
                 <input
                   id="businessName"
@@ -243,7 +245,7 @@ const Register = () => {
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                     errors.businessName ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                  placeholder="Your Business Name"
+                  placeholder={t('register.business_name_placeholder')}
                 />
                 {errors.businessName && <p className="mt-1 text-sm text-red-600">{errors.businessName}</p>}
               </div>
@@ -251,7 +253,7 @@ const Register = () => {
               {/* Phone */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                  Phone Number
+                  {t('register.phone_label')}
                 </label>
                 <input
                   id="phone"
@@ -262,7 +264,7 @@ const Register = () => {
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                     errors.phone ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder={t('register.phone_placeholder')}
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
               </div>
@@ -270,7 +272,7 @@ const Register = () => {
               {/* Address */}
               <div>
                 <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                  Business Address *
+                  {t('register.address_label')}{t('register.required_field')}
                 </label>
                 <input
                   id="address"
@@ -282,7 +284,7 @@ const Register = () => {
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                     errors.address ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                  placeholder="123 Main St, City, State, ZIP"
+                  placeholder={t('register.address_placeholder')}
                 />
                 {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
               </div>
@@ -290,7 +292,7 @@ const Register = () => {
               {/* Description */}
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Business Description
+                  {t('register.description_label')}
                 </label>
                 <textarea
                   id="description"
@@ -301,7 +303,7 @@ const Register = () => {
                   className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
                     errors.description ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
-                  placeholder="Tell us about your business and the types of food you offer..."
+                  placeholder={t('register.description_placeholder')}
                 />
                 {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
               </div>
@@ -319,19 +321,19 @@ const Register = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Registering...
+                    {t('register.registering')}
                   </span>
                 ) : (
-                  'Register Business'
+                  t('register.register_button')
                 )}
               </button>
             </div>
 
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                Already have an account?{' '}
+                {t('register.have_account')}{' '}
                 <Link to="/login" className="font-medium text-green-600 hover:text-green-500">
-                  Sign in here
+                  {t('register.sign_in_link')}
                 </Link>
               </p>
             </div>

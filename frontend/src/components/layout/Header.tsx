@@ -2,11 +2,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/auth'
 import { Menu, X, User, LogOut, Settings, Building2 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import LanguageSwitcher from '../ui/LanguageSwitcher'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { user, business, isAuthenticated, logout } = useAuthStore()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleLogout = async () => {
     try {
@@ -36,16 +39,16 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-gray-700 hover:text-primary-600 transition-colors">
-              Home
+              {t('navigation.home')}
             </Link>
             <Link to="/listings" className="text-gray-700 hover:text-primary-600 transition-colors">
-              Listings
+              {t('navigation.listings')}
             </Link>
             <Link to="/about" className="text-gray-700 hover:text-primary-600 transition-colors">
-              About
+              {t('navigation.about')}
             </Link>
             <Link to="/contact" className="text-gray-700 hover:text-primary-600 transition-colors">
-              Contact
+              {t('navigation.contact')}
             </Link>
           </nav>
 
@@ -63,26 +66,29 @@ const Header = () => {
               <div className="flex items-center space-x-4">
                 <Link to="/business-dashboard" className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors">
                   <Settings size={18} />
-                  <span>Dashboard</span>
+                  <span>{t('navigation.dashboard')}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 text-gray-700 hover:text-red-600 transition-colors"
                 >
                   <LogOut size={18} />
-                  <span>Logout</span>
+                  <span>{t('navigation.logout')}</span>
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
                 <Link to="/login" className="text-gray-700 hover:text-primary-600 transition-colors">
-                  Login
+                  {t('navigation.login')}
                 </Link>
                 <Link to="/register" className="btn btn-primary">
-                  Register Business
+                  {t('navigation.register_business')}
                 </Link>
               </div>
             )}
+            
+            {/* Language Switcher */}
+            <LanguageSwitcher />
           </div>
 
           {/* Mobile menu button */}
@@ -104,28 +110,28 @@ const Header = () => {
               className="block text-gray-700 hover:text-primary-600 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              Home
+              {t('navigation.home')}
             </Link>
             <Link
               to="/listings"
               className="block text-gray-700 hover:text-primary-600 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              Listings
+              {t('navigation.listings')}
             </Link>
             <Link
               to="/about"
               className="block text-gray-700 hover:text-primary-600 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              About
+              {t('navigation.about')}
             </Link>
             <Link
               to="/contact"
               className="block text-gray-700 hover:text-primary-600 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              Contact
+              {t('navigation.contact')}
             </Link>
             
             {/* Mobile Business Name Display */}
@@ -143,7 +149,7 @@ const Header = () => {
                   className="block text-gray-700 hover:text-primary-600 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Dashboard
+                  {t('navigation.dashboard')}
                 </Link>
                 <button
                   onClick={() => {
@@ -152,7 +158,7 @@ const Header = () => {
                   }}
                   className="block w-full text-left text-gray-700 hover:text-red-600 transition-colors"
                 >
-                  Logout
+                  {t('navigation.logout')}
                 </button>
               </div>
             ) : (
@@ -162,17 +168,22 @@ const Header = () => {
                   className="block text-gray-700 hover:text-primary-600 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Login
+                  {t('navigation.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="block btn btn-primary w-full text-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Register Business
+                  {t('navigation.register_business')}
                 </Link>
               </div>
             )}
+            
+            {/* Mobile Language Switcher */}
+            <div className="border-t border-gray-200 pt-4">
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       )}
