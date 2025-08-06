@@ -45,14 +45,14 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
     
     - name: Install Railway CLI
       run: npm install -g @railway/cli
     
     - name: Deploy to Railway
-      run: railway up --service resq-food-backend
+      run: railway up --service resq-food
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         
@@ -67,7 +67,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
     
     - name: Install frontend dependencies
