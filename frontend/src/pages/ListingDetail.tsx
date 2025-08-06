@@ -33,7 +33,7 @@ const ListingDetail = () => {
     queryKey: ['listing', id],
     queryFn: () => listingsApi.getById(id!),
     enabled: !!id,
-    retry: (failureCount, error) => {
+    retry: (failureCount) => {
       // Don't retry if offline
       if (!navigator.onLine) return false;
       // Only retry network errors up to 2 times
@@ -64,7 +64,7 @@ const ListingDetail = () => {
     }
   };
 
-  const translateTimeRemaining = (timeString: string) => {
+  const translateTimeRemaining = (timeString: string): string => {
     // Handle special cases first
     if (timeString.includes('less than')) {
       const match = timeString.match(/less than (\d+)\s+(.+)/);
@@ -78,10 +78,11 @@ const ListingDetail = () => {
         const translationKey = unitMap[unit];
         if (translationKey) {
           const params = getTimeParams(count, unit);
-          return t(
+          const result = t(
             `components.listings.card.time_remaining.${translationKey}`,
             params,
           );
+          return typeof result === 'string' ? result : timeString;
         }
       }
     }
@@ -102,10 +103,11 @@ const ListingDetail = () => {
         const translationKey = unitMap[unit];
         if (translationKey) {
           const params = getTimeParams(count, unit);
-          return t(
+          const result = t(
             `components.listings.card.time_remaining.${translationKey}`,
             params,
           );
+          return typeof result === 'string' ? result : timeString;
         }
       }
     }
@@ -134,10 +136,11 @@ const ListingDetail = () => {
     const translationKey = unitMap[unit];
     if (translationKey) {
       const params = getTimeParams(count, unit);
-      return t(
+      const result = t(
         `components.listings.card.time_remaining.${translationKey}`,
         params,
       );
+      return typeof result === 'string' ? result : timeString;
     }
 
     return timeString;

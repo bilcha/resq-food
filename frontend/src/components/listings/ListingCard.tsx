@@ -45,7 +45,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
     }
   };
 
-  const translateTimeRemaining = (timeString: string) => {
+  const translateTimeRemaining = (timeString: string): string => {
     // Handle special cases first
     if (timeString.includes('less than')) {
       const match = timeString.match(/less than (\d+)\s+(.+)/);
@@ -59,10 +59,11 @@ const ListingCard = ({ listing }: ListingCardProps) => {
         const translationKey = unitMap[unit];
         if (translationKey) {
           const params = getTimeParams(count, unit);
-          return t(
+          const result = t(
             `components.listings.card.time_remaining.${translationKey}`,
             params,
           );
+          return typeof result === 'string' ? result : timeString;
         }
       }
     }
@@ -83,10 +84,11 @@ const ListingCard = ({ listing }: ListingCardProps) => {
         const translationKey = unitMap[unit];
         if (translationKey) {
           const params = getTimeParams(count, unit);
-          return t(
+          const result = t(
             `components.listings.card.time_remaining.${translationKey}`,
             params,
           );
+          return typeof result === 'string' ? result : timeString;
         }
       }
     }
@@ -115,10 +117,11 @@ const ListingCard = ({ listing }: ListingCardProps) => {
     const translationKey = unitMap[unit];
     if (translationKey) {
       const params = getTimeParams(count, unit);
-      return t(
+      const result = t(
         `components.listings.card.time_remaining.${translationKey}`,
         params,
       );
+      return typeof result === 'string' ? result : timeString;
     }
 
     return timeString;

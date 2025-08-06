@@ -28,7 +28,7 @@ const Listings = () => {
     queryKey: ['listings', filters],
     queryFn: () => listingsApi.getAll(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: (failureCount, error) => {
+    retry: (failureCount) => {
       // Don't retry if offline or if we already have local data
       if (!navigator.onLine) return false;
       // Only retry network errors up to 2 times

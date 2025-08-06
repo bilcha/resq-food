@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { loadGoogleMaps } from '../../lib/google-maps-loader';
 import { useTranslation } from 'react-i18next';
 import { Listing } from '../../lib/api';
-import { MapPin, Star } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { formatPrice } from '../../lib/currency';
 
 interface ListingsMapProps {

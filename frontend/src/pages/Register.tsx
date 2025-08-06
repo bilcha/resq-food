@@ -28,7 +28,7 @@ interface FormErrors {
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register, user } = useAuthStore();
+  const { register } = useAuthStore();
   const { t } = useTranslation();
 
   const [formData, setFormData] = useState<FormData>({

@@ -4,7 +4,6 @@ import {
   Plus,
   Edit,
   Trash2,
-  Eye,
   Calendar,
   Package,
   AlertCircle,
@@ -75,7 +74,7 @@ export default function ListingManagement({
     queryKey: ['business-listings', businessId],
     queryFn: () => listingsApi.getByBusiness(businessId),
     enabled: !!businessId,
-    retry: (failureCount, error) => {
+    retry: (failureCount) => {
       // Don't retry if offline
       if (!navigator.onLine) return false;
       // Only retry network errors up to 2 times

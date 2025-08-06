@@ -42,11 +42,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Deploy to Railway
-      uses: bervProject/railway-deploy@v1.3.0
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
       with:
-        railway_token: ${{ secrets.RAILWAY_TOKEN }}
-        service: resq-food-backend
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Railway CLI
+      run: npm install -g @railway/cli
+    
+    - name: Deploy to Railway
+      run: railway up --service resq-food-backend
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         
   deploy-frontend:
     needs: test

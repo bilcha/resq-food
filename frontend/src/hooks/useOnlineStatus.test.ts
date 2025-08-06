@@ -16,10 +16,6 @@ describe('useOnlineStatus', () => {
     });
 
     // Mock window events
-    const originalAddEventListener = window.addEventListener;
-    const originalRemoveEventListener = window.removeEventListener;
-    const originalDispatchEvent = window.dispatchEvent;
-
     vi.spyOn(window, 'addEventListener');
     vi.spyOn(window, 'removeEventListener');
     vi.spyOn(window, 'dispatchEvent');

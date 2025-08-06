@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, CheckCircle, AlertCircle } from 'lucide-react';
+import { Download, CheckCircle } from 'lucide-react';
 import { dataPreloader } from '../../lib/data-preloader';
 import { useTranslation } from 'react-i18next';
 

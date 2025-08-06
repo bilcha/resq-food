@@ -16,11 +16,11 @@ import { useTranslation } from 'react-i18next';
 type TabType = 'listings' | 'analytics' | 'profile';
 
 const BusinessDashboard = () => {
-  const { business, user, fetchBusinessProfile } = useAuthStore();
+  const { business, fetchBusinessProfile } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabType>('listings');
   const { t } = useTranslation();
 
-  const handleBusinessUpdate = (updatedBusiness: any) => {
+  const handleBusinessUpdate = () => {
     // Refetch the business profile to ensure we have the latest data
     fetchBusinessProfile();
   };

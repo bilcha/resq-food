@@ -1,5 +1,4 @@
 import { offlineDB } from './offline-db';
-import { listingsApi, businessApi, Business, Listing } from './api';
 
 class SyncService {
   private isSyncing = false;
