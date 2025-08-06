@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { GeoccodingService } from '../geocoding/geocoding.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
@@ -16,10 +16,14 @@ export class BusinessService {
 
     try {
       // Geocode the address to get coordinates and place information
-      const geoccodingResult = await this.geoccodingService.geocodeAddress(createBusinessDto.address);
-      
+      const geoccodingResult = await this.geoccodingService.geocodeAddress(
+        createBusinessDto.address,
+      );
+
       if (!geoccodingResult) {
-        throw new BadRequestException('Could not geocode the provided address. Please provide a valid address.');
+        throw new BadRequestException(
+          'Could not geocode the provided address. Please provide a valid address.',
+        );
       }
 
       const businessData = {
@@ -49,9 +53,11 @@ export class BusinessService {
         throw error;
       }
 
-      console.log('Business Service - Create successful:', { id: data.id, name: data.name });
+      console.log('Business Service - Create successful:', {
+        id: data.id,
+        name: data.name,
+      });
       return data;
-
     } catch (error) {
       console.error('Business Service - Create error:', error);
       throw error;
@@ -60,7 +66,7 @@ export class BusinessService {
 
   async findAll() {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('businesses')
       .select('*')
@@ -75,7 +81,7 @@ export class BusinessService {
 
   async findOne(id: string) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('businesses')
       .select('*')
@@ -91,7 +97,7 @@ export class BusinessService {
 
   async findByFirebaseUid(firebaseUid: string) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('businesses')
       .select('*')
@@ -107,8 +113,11 @@ export class BusinessService {
 
   async update(firebaseUid: string, updateBusinessDto: UpdateBusinessDto) {
     const supabase = this.databaseService.getClient();
-    
-    console.log('Business Service - Updating business with Firebase UID:', firebaseUid);
+
+    console.log(
+      'Business Service - Updating business with Firebase UID:',
+      firebaseUid,
+    );
     console.log('Business Service - Update data:', updateBusinessDto);
 
     try {
@@ -119,10 +128,14 @@ export class BusinessService {
 
       // If address is being updated, geocode it
       if (updateBusinessDto.address) {
-        const geoccodingResult = await this.geoccodingService.geocodeAddress(updateBusinessDto.address);
-        
+        const geoccodingResult = await this.geoccodingService.geocodeAddress(
+          updateBusinessDto.address,
+        );
+
         if (!geoccodingResult) {
-          throw new BadRequestException('Could not geocode the provided address. Please provide a valid address.');
+          throw new BadRequestException(
+            'Could not geocode the provided address. Please provide a valid address.',
+          );
         }
 
         updateData = {
@@ -133,7 +146,7 @@ export class BusinessService {
           google_place_id: geoccodingResult.placeId,
         };
       }
-    
+
       const { data, error } = await supabase
         .from('businesses')
         .update(updateData)
@@ -143,22 +156,31 @@ export class BusinessService {
 
       if (error) {
         console.error('Business Service - Update error:', error);
-        console.error('Business Service - Error details:', JSON.stringify(error, null, 2));
+        console.error(
+          'Business Service - Error details:',
+          JSON.stringify(error, null, 2),
+        );
         throw error;
       }
 
-      console.log('Business Service - Update successful:', { id: data.id, name: data.name });
+      console.log('Business Service - Update successful:', {
+        id: data.id,
+        name: data.name,
+      });
       return data;
-
     } catch (error) {
       console.error('Business Service - Update error:', error);
       throw error;
     }
   }
 
-  async updateGoogleRating(businessId: string, rating: number, placeId: string) {
+  async updateGoogleRating(
+    businessId: string,
+    rating: number,
+    placeId: string,
+  ) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('businesses')
       .update({
@@ -176,4 +198,4 @@ export class BusinessService {
 
     return data;
   }
-} 
+}

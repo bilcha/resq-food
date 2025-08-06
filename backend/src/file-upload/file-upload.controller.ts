@@ -1,6 +1,20 @@
-import { Controller, Post, Delete, UseInterceptors, UploadedFile, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { FileUploadService } from './file-upload.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 
@@ -17,7 +31,10 @@ export class FileUploadController {
   @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 200, description: 'Image uploaded successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async uploadImage(@UploadedFile() file: Express.Multer.File, @Body('folder') folder?: string) {
+  async uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('folder') folder?: string,
+  ) {
     const imageUrl = await this.fileUploadService.uploadImage(file, folder);
     return { imageUrl };
   }
@@ -32,4 +49,4 @@ export class FileUploadController {
     await this.fileUploadService.deleteImage(imageUrl);
     return { message: 'Image deleted successfully' };
   }
-} 
+}

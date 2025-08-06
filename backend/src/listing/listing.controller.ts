@@ -1,5 +1,21 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { ListingService } from './listing.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 
@@ -10,7 +26,10 @@ export class ListingController {
 
   @Get()
   @ApiOperation({ summary: 'Get all listings' })
-  @ApiResponse({ status: 200, description: 'List of listings retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of listings retrieved successfully',
+  })
   async findAll(@Query() filters: any) {
     return this.listingService.findAll(filters);
   }
@@ -39,7 +58,11 @@ export class ListingController {
   @ApiOperation({ summary: 'Update listing' })
   @ApiResponse({ status: 200, description: 'Listing updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async update(@Param('id') id: string, @Request() req, @Body() updateData: any) {
+  async update(
+    @Param('id') id: string,
+    @Request() req,
+    @Body() updateData: any,
+  ) {
     return this.listingService.update(id, req.user.id, updateData);
   }
 
@@ -55,8 +78,11 @@ export class ListingController {
 
   @Get('business/:businessId')
   @ApiOperation({ summary: 'Get listings by business ID' })
-  @ApiResponse({ status: 200, description: 'Business listings retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Business listings retrieved successfully',
+  })
   async getByBusiness(@Param('businessId') businessId: string) {
     return this.listingService.getByBusiness(businessId);
   }
-} 
+}

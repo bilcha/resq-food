@@ -20,4 +20,4 @@ export class AppController {
   getVersion(): { version: string; name: string } {
     return this.appService.getVersion();
   }
-} 
+}

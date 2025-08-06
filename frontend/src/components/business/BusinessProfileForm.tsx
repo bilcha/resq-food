@@ -1,41 +1,47 @@
 /// <reference types="google.maps" />
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useForm } from 'react-hook-form'
-import { loadGoogleMaps } from '../../lib/google-maps-loader'
-import { Business, BusinessUpdateData, businessApi } from '../../lib/offline-api'
-import { useAuthStore } from '../../store/auth'
-import { MapPin, Save, Loader2, AlertCircle, Check } from 'lucide-react'
-import { toast } from 'sonner'
-import { useTranslation } from 'react-i18next'
+import { useState, useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { loadGoogleMaps } from '../../lib/google-maps-loader';
+import {
+  Business,
+  BusinessUpdateData,
+  businessApi,
+} from '../../lib/offline-api';
+import { MapPin, Save, Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface BusinessProfileFormProps {
-  business: Business
-  onUpdate?: (updatedBusiness: Business) => void
+  business: Business;
+  onUpdate?: (updatedBusiness: Business) => void;
 }
 
 interface FormData {
-  name: string
-  phone: string
-  address: string
-  description: string
+  name: string;
+  phone: string;
+  address: string;
+  description: string;
 }
 
-const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isMapLoaded, setIsMapLoaded] = useState(false)
+const BusinessProfileForm = ({
+  business,
+  onUpdate: _onUpdate,
+}: BusinessProfileFormProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{
-    lat: number
-    lng: number
-    address: string
-  } | null>(null)
-  const [useManualAddress, setUseManualAddress] = useState(false)
-  const { t } = useTranslation()
-  
-  const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<google.maps.Map | null>(null)
-  const markerRef = useRef<google.maps.Marker | null>(null)
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
-  const addressInputRef = useRef<HTMLInputElement>(null)
+    lat: number;
+    lng: number;
+    address: string;
+  } | null>(null);
+  const [useManualAddress, setUseManualAddress] = useState(false);
+  const { t } = useTranslation();
+
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const markerRef = useRef<google.maps.Marker | null>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const addressInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -43,40 +49,41 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
     setValue,
     watch,
     reset,
-    formState: { errors, isDirty }
+    formState: { errors, isDirty },
   } = useForm<FormData>({
     defaultValues: {
       name: business.name || '',
       phone: business.phone || '',
       address: business.address || '',
-      description: business.description || ''
-    }
-  })
+      description: business.description || '',
+    },
+  });
 
-  const watchedAddress = watch('address')
+  const watchedAddress = watch('address');
 
   // Initialize Google Maps
   useEffect(() => {
     const initMap = async () => {
       try {
-        await loadGoogleMaps()
-        
-        if (!mapRef.current) return
+        await loadGoogleMaps();
+
+        if (!mapRef.current) return;
 
         // Use business location if available, otherwise default location
-        const initialLocation = business.latitude && business.longitude
-          ? { lat: business.latitude, lng: business.longitude }
-          : { lat: 50.4501, lng: 30.5234 } // Kyiv, Ukraine as default
+        const initialLocation =
+          business.latitude && business.longitude
+            ? { lat: business.latitude, lng: business.longitude }
+            : { lat: 50.4501, lng: 30.5234 }; // Kyiv, Ukraine as default
 
         const map = new google.maps.Map(mapRef.current, {
           zoom: business.latitude && business.longitude ? 15 : 10,
           center: initialLocation,
           mapTypeControl: false,
           streetViewControl: false,
-          fullscreenControl: false
-        })
+          fullscreenControl: false,
+        });
 
-        mapInstanceRef.current = map
+        mapInstanceRef.current = map;
 
         // Add initial marker if business has location
         if (business.latitude && business.longitude) {
@@ -84,43 +91,46 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
             position: initialLocation,
             map: map,
             draggable: true,
-            title: business.name
-          })
+            title: business.name,
+          });
 
-          markerRef.current = marker
+          markerRef.current = marker;
 
           // Handle marker drag
           marker.addListener('dragend', () => {
-            const position = marker.getPosition()
+            const position = marker.getPosition();
             if (position) {
-              reverseGeocode(position.lat(), position.lng())
+              reverseGeocode(position.lat(), position.lng());
             }
-          })
+          });
 
           setSelectedLocation({
             lat: business.latitude,
             lng: business.longitude,
-            address: business.address || ''
-          })
+            address: business.address || '',
+          });
         }
 
         // Handle map clicks
         map.addListener('click', (event: google.maps.MapMouseEvent) => {
           if (event.latLng) {
-            addMarker(event.latLng.lat(), event.latLng.lng())
-            reverseGeocode(event.latLng.lat(), event.latLng.lng())
+            addMarker(event.latLng.lat(), event.latLng.lng());
+            reverseGeocode(event.latLng.lat(), event.latLng.lng());
           }
-        })
+        });
 
         // Initialize Places Autocomplete
         if (addressInputRef.current) {
-          const autocomplete = new google.maps.places.Autocomplete(addressInputRef.current, {
-            types: ['establishment', 'geocode'],
-            fields: ['place_id', 'geometry', 'formatted_address', 'name'],
-            componentRestrictions: { country: 'ua' } // Restrict to Ukraine
-          })
+          const autocomplete = new google.maps.places.Autocomplete(
+            addressInputRef.current,
+            {
+              types: ['establishment', 'geocode'],
+              fields: ['place_id', 'geometry', 'formatted_address', 'name'],
+              componentRestrictions: { country: 'ua' }, // Restrict to Ukraine
+            },
+          );
 
-          autocompleteRef.current = autocomplete
+          autocompleteRef.current = autocomplete;
 
           // Enable autocomplete even on read-only input
           // addressInputRef.current.addEventListener('focus', () => {
@@ -136,52 +146,54 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
           // })
 
           autocomplete.addListener('place_changed', () => {
-            const place = autocomplete.getPlace()
+            const place = autocomplete.getPlace();
             if (place.geometry?.location && place.formatted_address) {
-              const lat = place.geometry.location.lat()
-              const lng = place.geometry.location.lng()
-              
-              addMarker(lat, lng)
-              map.setCenter({ lat, lng })
-              map.setZoom(15)
-              
+              const lat = place.geometry.location.lat();
+              const lng = place.geometry.location.lng();
+
+              addMarker(lat, lng);
+              map.setCenter({ lat, lng });
+              map.setZoom(15);
+
               setSelectedLocation({
                 lat,
                 lng,
-                address: place.formatted_address
-              })
-              
-              setValue('address', place.formatted_address, { 
-                shouldDirty: true, 
-                shouldTouch: true 
-              })
-              
+                address: place.formatted_address,
+              });
+
+              setValue('address', place.formatted_address, {
+                shouldDirty: true,
+                shouldTouch: true,
+              });
+
               // Ensure input becomes read-only again after selection
               if (addressInputRef.current) {
-                addressInputRef.current.setAttribute('readonly', 'true')
+                addressInputRef.current.setAttribute('readonly', 'true');
               }
             }
-          })
+          });
         }
 
-        setIsMapLoaded(true)
+        setIsMapLoaded(true);
       } catch (error) {
-        console.error('Error loading Google Maps:', error)
-        toast.error('Failed to load map. You can still update your profile using manual address entry.')
+        console.error('Error loading Google Maps:', error);
+        toast.error(
+          'Failed to load map. You can still update your profile using manual address entry.',
+        );
       }
-    }
+    };
 
     if (!useManualAddress) {
-      initMap()
+      initMap();
     }
-  }, [business, useManualAddress])
+  }, [business, useManualAddress]);
 
   const addMarker = (lat: number, lng: number) => {
-    if (!mapInstanceRef.current) return
+    if (!mapInstanceRef.current) return;
 
     // Remove existing marker
     if (markerRef.current) {
-      markerRef.current.setMap(null)
+      markerRef.current.setMap(null);
     }
 
     // Add new marker
@@ -189,79 +201,78 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
       position: { lat, lng },
       map: mapInstanceRef.current,
       draggable: true,
-      title: 'Business Location'
-    })
+      title: 'Business Location',
+    });
 
-    markerRef.current = marker
+    markerRef.current = marker;
 
     // Handle marker drag
     marker.addListener('dragend', () => {
-      const position = marker.getPosition()
+      const position = marker.getPosition();
       if (position) {
-        reverseGeocode(position.lat(), position.lng())
+        reverseGeocode(position.lat(), position.lng());
       }
-    })
-  }
+    });
+  };
 
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
-      const geocoder = new google.maps.Geocoder()
+      const geocoder = new google.maps.Geocoder();
       const response = await geocoder.geocode({
         location: { lat, lng },
         language: 'uk', // Request results in Ukrainian
-        region: 'UA' // Bias results towards Ukraine
-      })
+        region: 'UA', // Bias results towards Ukraine
+      });
 
       if (response.results.length > 0) {
-        const address = response.results[0].formatted_address
-        setSelectedLocation({ lat, lng, address })
-        setValue('address', address, { 
-          shouldDirty: true, 
-          shouldTouch: true 
-        })
+        const address = response.results[0].formatted_address;
+        setSelectedLocation({ lat, lng, address });
+        setValue('address', address, {
+          shouldDirty: true,
+          shouldTouch: true,
+        });
       }
     } catch (error) {
-      console.error('Reverse geocoding failed:', error)
+      console.error('Reverse geocoding failed:', error);
     }
-  }
+  };
 
   const onSubmit = async (data: FormData) => {
-    setIsLoading(true)
-    
+    setIsLoading(true);
+
     try {
       const updateData: BusinessUpdateData = {
         name: data.name,
         phone: data.phone || undefined,
-        description: data.description || undefined
-      }
+        description: data.description || undefined,
+      };
 
       // If using map and location is selected, include address
       if (!useManualAddress && selectedLocation) {
-        updateData.address = selectedLocation.address
+        updateData.address = selectedLocation.address;
       } else if (useManualAddress && data.address) {
-        updateData.address = data.address
+        updateData.address = data.address;
       }
 
-      const updatedBusiness = await businessApi.updateProfile(updateData)
-      
+      const updatedBusiness = await businessApi.updateProfile(updateData);
+
       // Reset form with updated values to mark it as clean
       reset({
         name: updatedBusiness.name || '',
         phone: updatedBusiness.phone || '',
         address: updatedBusiness.address || '',
-        description: updatedBusiness.description || ''
-      })
-      
-      toast.success(t('components.business.profile_form.success_message'))
-      onUpdate?.(updatedBusiness)
-      
+        description: updatedBusiness.description || '',
+      });
+
+      toast.success(t('components.business.profile_form.success_message'));
+      _onUpdate?.(updatedBusiness);
     } catch (error) {
-      console.error('Error updating business profile:', error)
-      toast.error(t('components.business.profile_form.error_message'))
+      console.error('Error updating business profile:', error);
+      toast.error(t('components.business.profile_form.error_message'));
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -277,18 +288,30 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Business Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             {t('components.business.profile_form.business_name')} *
           </label>
           <input
-            {...register('name', { 
-              required: t('components.business.profile_form.validation.name_required'),
-              maxLength: { value: 255, message: t('components.business.profile_form.validation.name_max_length') }
+            {...register('name', {
+              required: t(
+                'components.business.profile_form.validation.name_required',
+              ),
+              maxLength: {
+                value: 255,
+                message: t(
+                  'components.business.profile_form.validation.name_max_length',
+                ),
+              },
             })}
             type="text"
             id="name"
             className={`input w-full ${errors.name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-            placeholder={t('components.business.profile_form.placeholders.business_name')}
+            placeholder={t(
+              'components.business.profile_form.placeholders.business_name',
+            )}
           />
           {errors.name && (
             <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -300,7 +323,10 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
 
         {/* Email (Read-only) */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             {t('components.business.profile_form.email_address')}
           </label>
           <input
@@ -317,17 +343,27 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
 
         {/* Phone */}
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="phone"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             {t('components.business.profile_form.phone_number')}
           </label>
           <input
             {...register('phone', {
-              maxLength: { value: 50, message: t('components.business.profile_form.validation.phone_invalid') }
+              maxLength: {
+                value: 50,
+                message: t(
+                  'components.business.profile_form.validation.phone_invalid',
+                ),
+              },
             })}
             type="tel"
             id="phone"
             className={`input w-full ${errors.phone ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
-            placeholder={t('components.business.profile_form.placeholders.phone')}
+            placeholder={t(
+              'components.business.profile_form.placeholders.phone',
+            )}
           />
           {errors.phone && (
             <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -348,7 +384,9 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
               onClick={() => setUseManualAddress(!useManualAddress)}
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
-              {useManualAddress ? t('components.business.profile_form.use_map_instead') : t('components.business.profile_form.enter_manually')}
+              {useManualAddress
+                ? t('components.business.profile_form.use_map_instead')
+                : t('components.business.profile_form.enter_manually')}
             </button>
           </div>
 
@@ -358,7 +396,9 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
               <input
                 {...register('address')}
                 type="text"
-                placeholder={t('components.business.profile_form.placeholders.address')}
+                placeholder={t(
+                  'components.business.profile_form.placeholders.address',
+                )}
                 className="input w-full"
               />
               <p className="mt-1 text-sm text-gray-500">
@@ -374,11 +414,13 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
                   {...register('address')}
                   ref={(element) => {
                     if (element) {
-                      (addressInputRef as any).current = element
+                      (addressInputRef as any).current = element;
                     }
                   }}
                   type="text"
-                  placeholder={t('components.business.profile_form.placeholders.search_address')}
+                  placeholder={t(
+                    'components.business.profile_form.placeholders.search_address',
+                  )}
                   className="input w-full bg-gray-50"
                   disabled
                   value={watchedAddress || ''}
@@ -390,11 +432,11 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
 
               {/* Map */}
               <div className="relative">
-                <div 
-                  ref={mapRef} 
+                <div
+                  ref={mapRef}
                   className="w-full h-64 rounded-lg border border-gray-200"
                 />
-                
+
                 {!isMapLoaded && (
                   <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center">
                     <div className="text-center text-gray-500">
@@ -408,10 +450,19 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
                 {selectedLocation && (
                   <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-sm border border-gray-200 p-3 max-w-xs">
                     <div className="flex items-start space-x-2">
-                      <MapPin size={16} className="text-primary-600 mt-0.5 flex-shrink-0" />
+                      <MapPin
+                        size={16}
+                        className="text-primary-600 mt-0.5 flex-shrink-0"
+                      />
                       <div className="text-sm">
-                        <p className="font-medium text-gray-900">{t('components.business.profile_form.selected_location')}</p>
-                        <p className="text-gray-600 mt-1">{selectedLocation.address}</p>
+                        <p className="font-medium text-gray-900">
+                          {t(
+                            'components.business.profile_form.selected_location',
+                          )}
+                        </p>
+                        <p className="text-gray-600 mt-1">
+                          {selectedLocation.address}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -423,7 +474,10 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             {t('components.business.profile_form.business_description')}
           </label>
           <textarea
@@ -431,7 +485,9 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
             id="description"
             rows={4}
             className="input w-full resize-none"
-            placeholder={t('components.business.profile_form.placeholders.description')}
+            placeholder={t(
+              'components.business.profile_form.placeholders.description',
+            )}
           />
           <p className="mt-1 text-sm text-gray-500">
             {t('components.business.profile_form.describe_business')}
@@ -443,7 +499,7 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
           <div className="text-sm text-gray-500">
             {isDirty && `• ${t('components.business.profile_form.no_changes')}`}
           </div>
-          
+
           <button
             type="submit"
             disabled={isLoading || !isDirty}
@@ -464,7 +520,7 @@ const BusinessProfileForm = ({ business, onUpdate }: BusinessProfileFormProps) =
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default BusinessProfileForm 
+export default BusinessProfileForm;

@@ -1,5 +1,10 @@
 import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 
@@ -12,7 +17,10 @@ export class AdminController {
 
   @Get('pending-listings')
   @ApiOperation({ summary: 'Get pending listings for approval' })
-  @ApiResponse({ status: 200, description: 'Pending listings retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Pending listings retrieved successfully',
+  })
   async getPendingListings() {
     return this.adminService.getPendingListings();
   }
@@ -33,8 +41,11 @@ export class AdminController {
 
   @Get('analytics')
   @ApiOperation({ summary: 'Get analytics dashboard data' })
-  @ApiResponse({ status: 200, description: 'Analytics data retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Analytics data retrieved successfully',
+  })
   async getAnalytics() {
     return this.adminService.getAnalytics();
   }
-} 
+}

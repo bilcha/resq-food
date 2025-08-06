@@ -7,10 +7,11 @@ export class ListingService {
 
   async findAll(filters?: any) {
     const supabase = this.databaseService.getClient();
-    
+
     let query = supabase
       .from('listings')
-      .select(`
+      .select(
+        `
         *,
         businesses (
           id,
@@ -21,7 +22,8 @@ export class ListingService {
           google_rating,
           google_place_id
         )
-      `)
+      `,
+      )
       .eq('is_active', true)
       .eq('is_approved', true);
 
@@ -51,10 +53,11 @@ export class ListingService {
 
   async findOne(id: string) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('listings')
-      .select(`
+      .select(
+        `
         *,
         businesses (
           id,
@@ -65,7 +68,8 @@ export class ListingService {
           google_rating,
           google_place_id
         )
-      `)
+      `,
+      )
       .eq('id', id)
       .single();
 
@@ -78,7 +82,7 @@ export class ListingService {
 
   async create(businessId: string, listingData: any) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('listings')
       .insert([
@@ -111,7 +115,7 @@ export class ListingService {
 
   async update(id: string, businessId: string, updateData: any) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('listings')
       .update({
@@ -132,7 +136,7 @@ export class ListingService {
 
   async delete(id: string, businessId: string) {
     const supabase = this.databaseService.getClient();
-    
+
     const { error } = await supabase
       .from('listings')
       .update({ is_active: false, updated_at: new Date().toISOString() })
@@ -148,7 +152,7 @@ export class ListingService {
 
   async getByBusiness(businessId: string) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('listings')
       .select('*')
@@ -161,4 +165,4 @@ export class ListingService {
 
     return data;
   }
-} 
+}

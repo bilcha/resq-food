@@ -16,4 +16,4 @@ export class AppService {
       name: 'ResQ Food API',
     };
   }
-} 
+}

@@ -1,15 +1,15 @@
-import { ReactNode } from 'react'
-import { Navigate } from 'react-router-dom'
-import { useAuthStore } from '../../store/auth'
-import { useTranslation } from 'react-i18next'
+import { ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/auth';
+import { useTranslation } from 'react-i18next';
 
 interface ProtectedRouteProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuthStore()
-  const { t } = useTranslation()
+  const { isAuthenticated, isLoading } = useAuthStore();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
@@ -19,14 +19,14 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           <p>{t('components.auth.loading')}</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
-export default ProtectedRoute 
+export default ProtectedRoute;

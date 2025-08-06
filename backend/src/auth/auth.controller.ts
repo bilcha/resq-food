@@ -1,5 +1,17 @@
-import { Controller, Post, Get, UseGuards, Request, Body } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Get,
+  UseGuards,
+  Request,
+  Body,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { FirebaseAuthGuard } from './firebase-auth.guard';
 
@@ -12,7 +24,10 @@ export class AuthController {
   @UseGuards(FirebaseAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get current user profile' })
-  @ApiResponse({ status: 200, description: 'User profile retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getProfile(@Request() req) {
     return req.user;
@@ -26,17 +41,17 @@ export class AuthController {
     try {
       console.log('Auth Controller - verify-token endpoint called');
       console.log('Auth Controller - Token received:', !!token);
-      
+
       const decodedToken = await this.authService.verifyToken(token);
       console.log('Auth Controller - Token decoded successfully');
-      
+
       const user = await this.authService.findOrCreateUser(
         decodedToken.uid,
         decodedToken.email,
         decodedToken.name,
       );
       console.log('Auth Controller - User found/created successfully');
-      
+
       return { valid: true, user };
     } catch (error) {
       console.error('Auth Controller - verify-token error:', error);
@@ -49,9 +64,9 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Firebase connection test result' })
   async testFirebase() {
     const isConnected = await this.authService.testFirebaseConnection();
-    return { 
+    return {
       firebaseConnected: isConnected,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
-} 
+}

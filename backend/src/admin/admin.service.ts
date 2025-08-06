@@ -7,10 +7,11 @@ export class AdminService {
 
   async getPendingListings() {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('listings')
-      .select(`
+      .select(
+        `
         *,
         businesses (
           id,
@@ -18,7 +19,8 @@ export class AdminService {
           email,
           address
         )
-      `)
+      `,
+      )
       .eq('is_approved', false)
       .eq('is_active', true);
 
@@ -31,12 +33,12 @@ export class AdminService {
 
   async approveListing(listingId: string) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('listings')
-      .update({ 
-        is_approved: true, 
-        updated_at: new Date().toISOString() 
+      .update({
+        is_approved: true,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', listingId)
       .select()
@@ -51,12 +53,12 @@ export class AdminService {
 
   async rejectListing(listingId: string) {
     const supabase = this.databaseService.getClient();
-    
+
     const { data, error } = await supabase
       .from('listings')
-      .update({ 
-        is_active: false, 
-        updated_at: new Date().toISOString() 
+      .update({
+        is_active: false,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', listingId)
       .select()
@@ -71,17 +73,25 @@ export class AdminService {
 
   async getAnalytics() {
     const supabase = this.databaseService.getClient();
-    
+
     const [
       { count: totalListings },
       { count: totalBusinesses },
       { count: activeListings },
-      { count: pendingListings }
+      { count: pendingListings },
     ] = await Promise.all([
       supabase.from('listings').select('*', { count: 'exact', head: true }),
       supabase.from('businesses').select('*', { count: 'exact', head: true }),
-      supabase.from('listings').select('*', { count: 'exact', head: true }).eq('is_active', true).eq('is_approved', true),
-      supabase.from('listings').select('*', { count: 'exact', head: true }).eq('is_approved', false).eq('is_active', true)
+      supabase
+        .from('listings')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true)
+        .eq('is_approved', true),
+      supabase
+        .from('listings')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_approved', false)
+        .eq('is_active', true),
     ]);
 
     return {
@@ -91,4 +101,4 @@ export class AdminService {
       pendingListings,
     };
   }
-} 
+}

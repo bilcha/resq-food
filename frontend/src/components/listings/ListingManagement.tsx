@@ -1,60 +1,68 @@
-import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Calendar, 
-  Package, 
-  AlertCircle, 
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Calendar,
+  Package,
+  AlertCircle,
   CheckCircle,
   Clock,
-  Loader2
-} from 'lucide-react'
-import { format } from 'date-fns'
-import { useTranslation } from 'react-i18next'
-import { listingsApi, Listing, CreateListingData, UpdateListingData } from '../../lib/offline-api'
-import { useAuthStore } from '../../store/auth'
-import ListingForm from './ListingForm'
-import { formatPrice } from '../../lib/currency'
+  Loader2,
+} from 'lucide-react';
+import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
+import {
+  listingsApi,
+  Listing,
+  CreateListingData,
+  UpdateListingData,
+} from '../../lib/offline-api';
+import { useAuthStore } from '../../store/auth';
+import ListingForm from './ListingForm';
+import { formatPrice } from '../../lib/currency';
 
 interface ListingManagementProps {
-  businessId: string
+  businessId: string;
 }
 
-export default function ListingManagement({ businessId }: ListingManagementProps) {
-  const queryClient = useQueryClient()
-  const { business } = useAuthStore()
-  const { t } = useTranslation()
-  const [showForm, setShowForm] = useState(false)
-  const [editingListing, setEditingListing] = useState<Listing | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+export default function ListingManagement({
+  businessId,
+}: ListingManagementProps) {
+  const queryClient = useQueryClient();
+  const { business } = useAuthStore();
+  const { t } = useTranslation();
+  const [showForm, setShowForm] = useState(false);
+  const [editingListing, setEditingListing] = useState<Listing | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Listen for sync completion to refresh listings
   useEffect(() => {
     const handleSyncComplete = () => {
-      console.log('Sync completed, refreshing listings...')
-      
+      console.log('Sync completed, refreshing listings...');
+
       // Add a small delay to ensure database updates are complete
       setTimeout(() => {
         // Invalidate and refetch immediately
-        queryClient.invalidateQueries({ 
+        queryClient.invalidateQueries({
           queryKey: ['business-listings', businessId],
-          refetchType: 'all' 
-        })
+          refetchType: 'all',
+        });
         // Also force a manual refetch after a short delay to ensure it happens
         setTimeout(() => {
-          queryClient.refetchQueries({ 
-            queryKey: ['business-listings', businessId] 
-          })
-        }, 500)
-      }, 100)
-    }
+          queryClient.refetchQueries({
+            queryKey: ['business-listings', businessId],
+          });
+        }, 500);
+      }, 100);
+    };
 
-    window.addEventListener('sync-complete', handleSyncComplete)
-    return () => window.removeEventListener('sync-complete', handleSyncComplete)
-  }, [queryClient, businessId])
+    window.addEventListener('sync-complete', handleSyncComplete);
+    return () =>
+      window.removeEventListener('sync-complete', handleSyncComplete);
+  }, [queryClient, businessId]);
 
   // Fetch business listings
   const {
@@ -62,88 +70,107 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     isLoading,
     isError,
     error,
-    dataUpdatedAt
+    dataUpdatedAt,
   } = useQuery({
     queryKey: ['business-listings', businessId],
     queryFn: () => listingsApi.getByBusiness(businessId),
     enabled: !!businessId,
     retry: (failureCount, error) => {
       // Don't retry if offline
-      if (!navigator.onLine) return false
+      if (!navigator.onLine) return false;
       // Only retry network errors up to 2 times
-      return failureCount < 2
+      return failureCount < 2;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
     refetchOnWindowFocus: false,
     networkMode: 'offlineFirst',
     staleTime: 30 * 1000, // Reduced to 30 seconds for more responsive UI updates
-  })
+  });
 
   // Debug: Log when listings data changes
   useEffect(() => {
     console.log('Listings data updated:', {
       count: listings.length,
       dataUpdatedAt: new Date(dataUpdatedAt),
-      listingsWithBlobUrls: listings.filter(l => l.image_url?.startsWith('blob:')).length
-    })
-  }, [listings, dataUpdatedAt])
+      listingsWithBlobUrls: listings.filter((l) =>
+        l.image_url?.startsWith('blob:'),
+      ).length,
+    });
+  }, [listings, dataUpdatedAt]);
 
   // Create listing mutation
   const createMutation = useMutation({
-    mutationFn: (data: CreateListingData & { business_id: string }) => listingsApi.create(data),
+    mutationFn: (data: CreateListingData & { business_id: string }) =>
+      listingsApi.create(data),
     networkMode: 'offlineFirst',
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['business-listings', businessId] })
-      setShowForm(false)
+      queryClient.invalidateQueries({
+        queryKey: ['business-listings', businessId],
+      });
+      setShowForm(false);
     },
-  })
+  });
 
   // Update listing mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateListingData }) => 
+    mutationFn: ({ id, data }: { id: string; data: UpdateListingData }) =>
       listingsApi.update(id, data),
     networkMode: 'offlineFirst',
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['business-listings', businessId] })
-      setEditingListing(null)
+      queryClient.invalidateQueries({
+        queryKey: ['business-listings', businessId],
+      });
+      setEditingListing(null);
     },
-  })
+  });
 
   // Delete listing mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => listingsApi.delete(id),
     networkMode: 'offlineFirst',
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['business-listings', businessId] })
-      setDeletingId(null)
+      queryClient.invalidateQueries({
+        queryKey: ['business-listings', businessId],
+      });
+      setDeletingId(null);
     },
-  })
+  });
 
-  const handleCreateListing = async (data: CreateListingData | UpdateListingData) => {
-    const createData = { ...data, business_id: businessId } as CreateListingData & { business_id: string }
-    await createMutation.mutateAsync(createData)
-  }
+  const handleCreateListing = async (
+    data: CreateListingData | UpdateListingData,
+  ) => {
+    const createData = {
+      ...data,
+      business_id: businessId,
+    } as CreateListingData & { business_id: string };
+    await createMutation.mutateAsync(createData);
+  };
 
-  const handleUpdateListing = async (data: CreateListingData | UpdateListingData) => {
-    if (!editingListing) return
-    await updateMutation.mutateAsync({ id: editingListing.id, data: data as UpdateListingData })
-  }
+  const handleUpdateListing = async (
+    data: CreateListingData | UpdateListingData,
+  ) => {
+    if (!editingListing) return;
+    await updateMutation.mutateAsync({
+      id: editingListing.id,
+      data: data as UpdateListingData,
+    });
+  };
 
   const handleDeleteListing = async (id: string) => {
     if (confirm(t('components.listings.management.delete_confirm'))) {
-      setDeletingId(id)
+      setDeletingId(id);
       try {
-        await deleteMutation.mutateAsync(id)
+        await deleteMutation.mutateAsync(id);
       } catch (error) {
-        setDeletingId(null)
+        setDeletingId(null);
       }
     }
-  }
+  };
 
   const getStatusBadge = (listing: Listing) => {
-    const now = new Date()
-    const availableFrom = new Date(listing.available_from)
-    const availableUntil = new Date(listing.available_until)
+    const now = new Date();
+    const availableFrom = new Date(listing.available_from);
+    const availableUntil = new Date(listing.available_until);
 
     if (now < availableFrom) {
       return (
@@ -151,7 +178,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
           <Calendar size={12} className="mr-1" />
           {t('components.listings.management.status.scheduled')}
         </span>
-      )
+      );
     }
 
     if (now > availableUntil) {
@@ -159,7 +186,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
           {t('components.listings.management.status.expired')}
         </span>
-      )
+      );
     }
 
     return (
@@ -167,20 +194,20 @@ export default function ListingManagement({ businessId }: ListingManagementProps
         <CheckCircle size={12} className="mr-1" />
         {t('components.listings.management.status.active')}
       </span>
-    )
-  }
+    );
+  };
 
   const formatPriceLocal = (price: number, isFree: boolean) => {
-    if (isFree) return t('listing_detail.free')
-    return formatPrice(price, false)
-  }
+    if (isFree) return t('listing_detail.free');
+    return formatPrice(price, false);
+  };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="animate-spin text-gray-400" size={32} />
       </div>
-    )
+    );
   }
 
   if (isError) {
@@ -189,11 +216,14 @@ export default function ListingManagement({ businessId }: ListingManagementProps
         <div className="flex items-center">
           <AlertCircle className="text-red-400 mr-2" size={20} />
           <p className="text-red-800">
-            {t('components.listings.management.error_loading')}: {error instanceof Error ? error.message : t('components.listings.management.unknown_error')}
+            {t('components.listings.management.error_loading')}:{' '}
+            {error instanceof Error
+              ? error.message
+              : t('components.listings.management.unknown_error')}
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   // Show form for creating new listing
@@ -201,9 +231,11 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">{t('components.listings.management.create_new_listing')}</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {t('components.listings.management.create_new_listing')}
+          </h2>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <ListingForm
             onSubmit={handleCreateListing}
@@ -213,7 +245,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
           />
         </div>
       </div>
-    )
+    );
   }
 
   // Show form for editing listing
@@ -221,14 +253,16 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">{t('components.listings.management.edit_listing')}</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {t('components.listings.management.edit_listing')}
+          </h2>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <ListingForm
             initialData={{
               ...editingListing,
-              image_url: editingListing.image_url || undefined
+              image_url: editingListing.image_url || undefined,
             }}
             onSubmit={handleUpdateListing}
             onCancel={() => setEditingListing(null)}
@@ -237,7 +271,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
           />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -245,9 +279,13 @@ export default function ListingManagement({ businessId }: ListingManagementProps
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{t('components.listings.management.title')}</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {t('components.listings.management.title')}
+          </h2>
           <p className="text-gray-600 mt-1">
-            {t('components.listings.management.subtitle', { businessName: business?.name })}
+            {t('components.listings.management.subtitle', {
+              businessName: business?.name,
+            })}
           </p>
         </div>
         <button
@@ -263,14 +301,13 @@ export default function ListingManagement({ businessId }: ListingManagementProps
       {listings.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
           <Package className="mx-auto text-gray-400 mb-4" size={48} />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('components.listings.management.no_listings')}</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            {t('components.listings.management.no_listings')}
+          </h3>
           <p className="text-gray-600 mb-4">
             {t('components.listings.management.create_first')}
           </p>
-          <button
-            onClick={() => setShowForm(true)}
-            className="btn btn-primary"
-          >
+          <button onClick={() => setShowForm(true)} className="btn btn-primary">
             {t('components.listings.management.create_first_listing')}
           </button>
         </div>
@@ -317,26 +354,37 @@ export default function ListingManagement({ businessId }: ListingManagementProps
 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{t('components.listings.management.category')}:</span>
+                    <span className="text-gray-500">
+                      {t('components.listings.management.category')}:
+                    </span>
                     <span className="font-medium">{listing.category}</span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{t('components.listings.management.price')}:</span>
+                    <span className="text-gray-500">
+                      {t('components.listings.management.price')}:
+                    </span>
                     <span className="font-medium text-primary-600">
                       {formatPriceLocal(listing.price, listing.is_free)}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{t('components.listings.management.quantity')}:</span>
+                    <span className="text-gray-500">
+                      {t('components.listings.management.quantity')}:
+                    </span>
                     <span className="font-medium">{listing.quantity}</span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{t('components.listings.management.available_until')}:</span>
+                    <span className="text-gray-500">
+                      {t('components.listings.management.available_until')}:
+                    </span>
                     <span className="font-medium">
-                      {format(new Date(listing.available_until), 'MMM d, HH:mm')}
+                      {format(
+                        new Date(listing.available_until),
+                        'MMM d, HH:mm',
+                      )}
                     </span>
                   </div>
                 </div>
@@ -350,7 +398,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
                     <Edit size={16} />
                     <span>{t('components.listings.management.edit')}</span>
                   </button>
-                  
+
                   <button
                     onClick={() => handleDeleteListing(listing.id)}
                     disabled={deletingId === listing.id}
@@ -370,5 +418,5 @@ export default function ListingManagement({ businessId }: ListingManagementProps
         </div>
       )}
     </div>
-  )
-} 
+  );
+}

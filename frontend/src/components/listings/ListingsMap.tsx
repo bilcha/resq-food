@@ -1,34 +1,38 @@
-import { useEffect, useRef, useState } from 'react'
-import { loadGoogleMaps } from '../../lib/google-maps-loader'
-import { useTranslation } from 'react-i18next'
-import { Listing } from '../../lib/api'
-import { MapPin, Star } from 'lucide-react'
-import { formatPrice } from '../../lib/currency'
+import { useEffect, useRef, useState } from 'react';
+import { loadGoogleMaps } from '../../lib/google-maps-loader';
+import { useTranslation } from 'react-i18next';
+import { Listing } from '../../lib/api';
+import { MapPin, Star } from 'lucide-react';
+import { formatPrice } from '../../lib/currency';
 
 interface ListingsMapProps {
-  listings: Listing[]
-  onListingSelect?: (listing: Listing) => void
-  className?: string
+  listings: Listing[];
+  onListingSelect?: (listing: Listing) => void;
+  className?: string;
 }
 
-const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapProps) => {
-  const { t } = useTranslation()
-  const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<google.maps.Map | null>(null)
-  const markersRef = useRef<google.maps.Marker[]>([])
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+const ListingsMap = ({
+  listings,
+  onListingSelect,
+  className = '',
+}: ListingsMapProps) => {
+  const { t } = useTranslation();
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Initialize Google Maps
   useEffect(() => {
     const initMap = async () => {
       try {
-        await loadGoogleMaps()
-        
-        if (!mapRef.current) return
+        await loadGoogleMaps();
+
+        if (!mapRef.current) return;
 
         // Default to Ukraine center if no listings
-        const defaultCenter = { lat: 50.4501, lng: 30.5234 } // Kyiv, Ukraine
+        const defaultCenter = { lat: 50.4501, lng: 30.5234 }; // Kyiv, Ukraine
 
         const map = new google.maps.Map(mapRef.current, {
           zoom: 10,
@@ -37,44 +41,43 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
             {
               featureType: 'poi',
               elementType: 'labels',
-              stylers: [{ visibility: 'off' }]
-            }
-          ]
-        })
+              stylers: [{ visibility: 'off' }],
+            },
+          ],
+        });
 
-        mapInstanceRef.current = map
-        setIsLoaded(true)
-
+        mapInstanceRef.current = map;
+        setIsLoaded(true);
       } catch (err) {
-        console.error('Error loading Google Maps:', err)
-        setError(t('components.listings.map.load_error'))
+        console.error('Error loading Google Maps:', err);
+        setError(t('components.listings.map.load_error'));
       }
-    }
+    };
 
-    initMap()
-  }, [t])
+    initMap();
+  }, [t]);
 
   // Update markers when listings change
   useEffect(() => {
-    if (!isLoaded || !mapInstanceRef.current) return
+    if (!isLoaded || !mapInstanceRef.current) return;
 
     // Clear existing markers
-    markersRef.current.forEach(marker => marker.setMap(null))
-    markersRef.current = []
+    markersRef.current.forEach((marker) => marker.setMap(null));
+    markersRef.current = [];
 
-    if (listings.length === 0) return
+    if (listings.length === 0) return;
 
-    const bounds = new google.maps.LatLngBounds()
-    const infoWindow = new google.maps.InfoWindow()
+    const bounds = new google.maps.LatLngBounds();
+    const infoWindow = new google.maps.InfoWindow();
 
-    listings.forEach(listing => {
-      const { businesses } = listing
-      if (!businesses?.latitude || !businesses?.longitude) return
+    listings.forEach((listing) => {
+      const { businesses } = listing;
+      if (!businesses?.latitude || !businesses?.longitude) return;
 
       const position = {
         lat: businesses.latitude,
-        lng: businesses.longitude
-      }
+        lng: businesses.longitude,
+      };
 
       // Create custom marker
       const marker = new google.maps.Marker({
@@ -87,9 +90,9 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
           fillColor: listing.is_free ? '#22c55e' : '#16a34a',
           fillOpacity: 1,
           strokeColor: '#ffffff',
-          strokeWeight: 2
-        }
-      })
+          strokeWeight: 2,
+        },
+      });
 
       // Create info window content
       const infoContent = `
@@ -99,59 +102,72 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-1 text-sm text-gray-500">
               <span>${businesses?.name || t('components.listings.card.unknown_business')}</span>
-              ${businesses?.google_rating ? `
+              ${
+                businesses?.google_rating
+                  ? `
                 <div class="flex items-center space-x-1 ml-2">
                   <span class="text-yellow-400">★</span>
                   <span>${businesses.google_rating}</span>
                 </div>
-              ` : ''}
+              `
+                  : ''
+              }
             </div>
             <div class="text-sm font-semibold ${listing.is_free ? 'text-green-600' : 'text-gray-900'}">
               ${listing.is_free ? t('listing_detail.free') : `${formatPrice(listing.price, false)}`}
             </div>
           </div>
         </div>
-      `
+      `;
 
       marker.addListener('click', () => {
-        infoWindow.setContent(infoContent)
-        infoWindow.open(mapInstanceRef.current, marker)
-        onListingSelect?.(listing)
-      })
+        infoWindow.setContent(infoContent);
+        infoWindow.open(mapInstanceRef.current, marker);
+        onListingSelect?.(listing);
+      });
 
-      markersRef.current.push(marker)
-      bounds.extend(position)
-    })
+      markersRef.current.push(marker);
+      bounds.extend(position);
+    });
 
     // Fit map to show all markers
     if (listings.length > 0) {
-      mapInstanceRef.current.fitBounds(bounds)
-      
+      mapInstanceRef.current.fitBounds(bounds);
+
       // Prevent over-zooming for single marker
-      google.maps.event.addListenerOnce(mapInstanceRef.current, 'bounds_changed', () => {
-        if (mapInstanceRef.current && mapInstanceRef.current.getZoom()! > 15) {
-          mapInstanceRef.current.setZoom(15)
-        }
-      })
+      google.maps.event.addListenerOnce(
+        mapInstanceRef.current,
+        'bounds_changed',
+        () => {
+          if (
+            mapInstanceRef.current &&
+            mapInstanceRef.current.getZoom()! > 15
+          ) {
+            mapInstanceRef.current.setZoom(15);
+          }
+        },
+      );
     }
-  }, [listings, isLoaded, onListingSelect, t])
+  }, [listings, isLoaded, onListingSelect, t]);
 
   if (error) {
     return (
-      <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
+      <div
+        className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}
+      >
         <div className="text-center text-gray-500">
           <MapPin size={48} className="mx-auto mb-2 opacity-50" />
           <p>{t('components.listings.map.unable_to_load')}</p>
           <p className="text-sm">{error}</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className={`relative rounded-lg overflow-hidden ${className}`}>
       <div ref={mapRef} className="w-full h-full min-h-[400px]" />
-      
+
       {!isLoaded && (
         <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
           <div className="text-center text-gray-500">
@@ -177,7 +193,7 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ListingsMap 
+export default ListingsMap;

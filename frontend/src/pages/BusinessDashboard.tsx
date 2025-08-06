@@ -1,23 +1,29 @@
-import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { useAuthStore } from '../store/auth'
-import { Building2, Package, BarChart3, Settings, AlertTriangle } from 'lucide-react'
-import ListingManagement from '../components/listings/ListingManagement'
-import BusinessProfileForm from '../components/business/BusinessProfileForm'
-import OfflineDataStatus from '../components/ui/OfflineDataStatus'
-import { useTranslation } from 'react-i18next'
+import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useAuthStore } from '../store/auth';
+import {
+  Building2,
+  Package,
+  BarChart3,
+  Settings,
+  AlertTriangle,
+} from 'lucide-react';
+import ListingManagement from '../components/listings/ListingManagement';
+import BusinessProfileForm from '../components/business/BusinessProfileForm';
+import OfflineDataStatus from '../components/ui/OfflineDataStatus';
+import { useTranslation } from 'react-i18next';
 
-type TabType = 'listings' | 'analytics' | 'profile'
+type TabType = 'listings' | 'analytics' | 'profile';
 
 const BusinessDashboard = () => {
-  const { business, user, fetchBusinessProfile } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<TabType>('listings')
-  const { t } = useTranslation()
+  const { business, user, fetchBusinessProfile } = useAuthStore();
+  const [activeTab, setActiveTab] = useState<TabType>('listings');
+  const { t } = useTranslation();
 
   const handleBusinessUpdate = (updatedBusiness: any) => {
     // Refetch the business profile to ensure we have the latest data
-    fetchBusinessProfile()
-  }
+    fetchBusinessProfile();
+  };
 
   if (!business) {
     return (
@@ -25,7 +31,7 @@ const BusinessDashboard = () => {
         <Helmet>
           <title>{t('business_dashboard.title')}</title>
         </Helmet>
-        
+
         <div className="min-h-screen py-12">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center py-20">
@@ -34,19 +40,17 @@ const BusinessDashboard = () => {
                 Business Profile Not Found
               </h1>
               <p className="text-gray-600 mb-6">
-                You need to complete your business registration to access the dashboard.
+                You need to complete your business registration to access the
+                dashboard.
               </p>
-              <a
-                href="/register"
-                className="btn btn-primary"
-              >
+              <a href="/register" className="btn btn-primary">
                 Complete Registration
               </a>
             </div>
           </div>
         </div>
       </>
-    )
+    );
   }
 
   const tabs = [
@@ -54,28 +58,28 @@ const BusinessDashboard = () => {
       id: 'listings' as TabType,
       name: 'Listings',
       icon: Package,
-      description: 'Manage your food listings'
+      description: 'Manage your food listings',
     },
     {
       id: 'analytics' as TabType,
       name: 'Analytics',
       icon: BarChart3,
-      description: 'View your performance metrics'
+      description: 'View your performance metrics',
     },
     {
       id: 'profile' as TabType,
       name: 'Profile',
       icon: Settings,
-      description: 'Manage business information'
+      description: 'Manage business information',
     },
-  ]
+  ];
 
   return (
     <>
       <Helmet>
         <title>Business Dashboard - ResQ Food</title>
       </Helmet>
-      
+
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white border-b border-gray-200">
@@ -103,7 +107,7 @@ const BusinessDashboard = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav className="flex space-x-8">
               {tabs.map((tab) => {
-                const Icon = tab.icon
+                const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
@@ -119,7 +123,7 @@ const BusinessDashboard = () => {
                       <span>{tab.name}</span>
                     </div>
                   </button>
-                )
+                );
               })}
             </nav>
           </div>
@@ -134,7 +138,7 @@ const BusinessDashboard = () => {
           {activeTab === 'analytics' && (
             <div className="space-y-6">
               <OfflineDataStatus />
-              
+
               <div className="bg-white rounded-lg border border-gray-200 p-8">
                 <div className="text-center py-12">
                   <BarChart3 className="mx-auto text-gray-400 mb-4" size={48} />
@@ -142,7 +146,8 @@ const BusinessDashboard = () => {
                     Analytics Coming Soon
                   </h3>
                   <p className="text-gray-600">
-                    Track your listing performance, customer engagement, and impact metrics.
+                    Track your listing performance, customer engagement, and
+                    impact metrics.
                   </p>
                 </div>
               </div>
@@ -158,7 +163,7 @@ const BusinessDashboard = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default BusinessDashboard 
+export default BusinessDashboard;

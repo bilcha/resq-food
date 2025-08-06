@@ -10,13 +10,19 @@ export class DatabaseService implements OnModuleInit {
 
   async onModuleInit() {
     const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
-    const supabaseServiceKey = this.configService.get<string>('SUPABASE_SERVICE_KEY');
+    const supabaseServiceKey = this.configService.get<string>(
+      'SUPABASE_SERVICE_KEY',
+    );
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase configuration. SUPABASE_SERVICE_KEY is required for backend operations.');
+      throw new Error(
+        'Missing Supabase configuration. SUPABASE_SERVICE_KEY is required for backend operations.',
+      );
     }
 
-    console.log('Database Service - Initializing with service key (bypasses RLS)');
+    console.log(
+      'Database Service - Initializing with service key (bypasses RLS)',
+    );
     this.supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
@@ -47,4 +53,4 @@ export class DatabaseService implements OnModuleInit {
       throw error;
     }
   }
-} 
+}

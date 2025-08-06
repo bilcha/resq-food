@@ -9,4 +9,4 @@ import { AuthModule } from '../auth/auth.module';
   providers: [FileUploadService],
   exports: [FileUploadService],
 })
-export class FileUploadModule {} 
+export class FileUploadModule {}

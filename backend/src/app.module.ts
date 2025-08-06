@@ -18,10 +18,12 @@ import { FileUploadModule } from './file-upload/file-upload.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     DatabaseModule,
     AuthModule,
     BusinessModule,
@@ -38,4 +40,4 @@ import { FileUploadModule } from './file-upload/file-upload.module';
     },
   ],
 })
-export class AppModule {} 
+export class AppModule {}

@@ -14,11 +14,7 @@ import { BusinessModule } from '../business/business.module';
     forwardRef(() => BusinessModule),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    FirebaseStrategy,
-    FirebaseAuthGuard,
-  ],
+  providers: [AuthService, FirebaseStrategy, FirebaseAuthGuard],
   exports: [AuthService, FirebaseAuthGuard],
 })
-export class AuthModule {} 
+export class AuthModule {}

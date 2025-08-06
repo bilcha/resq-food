@@ -1,16 +1,16 @@
-import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
-import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 
 const Home = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   return (
     <>
       <Helmet>
         <title>{t('home.title')}</title>
         <meta name="description" content={t('home.meta_description')} />
       </Helmet>
-      
+
       <div className="min-h-screen">
         {/* Hero Section */}
         <section className="bg-primary-600 text-white">
@@ -23,10 +23,16 @@ const Home = () => {
                 {t('home.hero_subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/listings" className="btn btn-lg bg-white text-primary-600 hover:bg-gray-100">
+                <Link
+                  to="/listings"
+                  className="btn btn-lg bg-white text-primary-600 hover:bg-gray-100"
+                >
                   {t('common.browse_listings')}
                 </Link>
-                <Link to="/register" className="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-primary-600">
+                <Link
+                  to="/register"
+                  className="btn btn-lg btn-outline border-white text-white hover:bg-white hover:text-primary-600"
+                >
                   {t('navigation.register_business')}
                 </Link>
               </div>
@@ -45,36 +51,36 @@ const Home = () => {
                 {t('home.features_subtitle')}
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">🏪</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{t('home.step1_title')}</h3>
-                <p className="text-gray-600">
-                  {t('home.step1_description')}
-                </p>
+                <h3 className="text-xl font-semibold mb-2">
+                  {t('home.step1_title')}
+                </h3>
+                <p className="text-gray-600">{t('home.step1_description')}</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">📱</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{t('home.step2_title')}</h3>
-                <p className="text-gray-600">
-                  {t('home.step2_description')}
-                </p>
+                <h3 className="text-xl font-semibold mb-2">
+                  {t('home.step2_title')}
+                </h3>
+                <p className="text-gray-600">{t('home.step2_description')}</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl">🌱</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{t('home.step3_title')}</h3>
-                <p className="text-gray-600">
-                  {t('home.step3_description')}
-                </p>
+                <h3 className="text-xl font-semibold mb-2">
+                  {t('home.step3_title')}
+                </h3>
+                <p className="text-gray-600">{t('home.step3_description')}</p>
               </div>
             </div>
           </div>
@@ -96,7 +102,7 @@ const Home = () => {
         </section>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Home 
+export default Home;

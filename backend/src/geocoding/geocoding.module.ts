@@ -9,4 +9,4 @@ import { GeoccodingController } from './geocoding.controller';
   providers: [GeoccodingService],
   exports: [GeoccodingService],
 })
-export class GeoccodingModule {} 
+export class GeoccodingModule {}

@@ -1,7 +1,7 @@
-import { Loader } from '@googlemaps/js-api-loader'
+import { Loader } from '@googlemaps/js-api-loader';
 
-let loaderInstance: Loader | null = null
-let loadPromise: Promise<typeof google> | null = null
+let loaderInstance: Loader | null = null;
+let loadPromise: Promise<typeof google> | null = null;
 
 export const getGoogleMapsLoader = (): Loader => {
   if (!loaderInstance) {
@@ -10,18 +10,18 @@ export const getGoogleMapsLoader = (): Loader => {
       version: 'weekly',
       libraries: ['places'],
       language: 'uk', // Ukrainian language
-      region: 'UA' // Ukraine region for location bias
-    })
+      region: 'UA', // Ukraine region for location bias
+    });
   }
-  return loaderInstance
-}
+  return loaderInstance;
+};
 
 export const loadGoogleMaps = (): Promise<typeof google> => {
   if (!loadPromise) {
-    const loader = getGoogleMapsLoader()
-    loadPromise = loader.load()
+    const loader = getGoogleMapsLoader();
+    loadPromise = loader.load();
   }
-  return loadPromise
-}
+  return loadPromise;
+};
 
-export default { getGoogleMapsLoader, loadGoogleMaps } 
+export default { getGoogleMapsLoader, loadGoogleMaps };

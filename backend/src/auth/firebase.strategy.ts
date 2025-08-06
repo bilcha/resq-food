@@ -12,8 +12,11 @@ export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
   async validate(req: any) {
     try {
       const authHeader = req.headers.authorization;
-      console.log('Firebase Strategy - Authorization header present:', !!authHeader);
-      
+      console.log(
+        'Firebase Strategy - Authorization header present:',
+        !!authHeader,
+      );
+
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.log('Firebase Strategy - No valid authorization header');
         throw new UnauthorizedException('No token provided');
@@ -22,7 +25,7 @@ export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
       const token = authHeader.substring(7); // Remove 'Bearer ' prefix
       console.log('Firebase Strategy - Token extracted:', !!token);
       console.log('Firebase Strategy - Token length:', token?.length);
-      
+
       if (!token) {
         throw new UnauthorizedException('No token provided');
       }
@@ -31,8 +34,11 @@ export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
       const decodedToken = await this.authService.verifyToken(token);
       console.log('Firebase Strategy - Token verified successfully');
       console.log('Firebase Strategy - Decoded token UID:', decodedToken.uid);
-      console.log('Firebase Strategy - Decoded token email:', decodedToken.email);
-      
+      console.log(
+        'Firebase Strategy - Decoded token email:',
+        decodedToken.email,
+      );
+
       // Find or create user in database
       const user = await this.authService.findOrCreateUser(
         decodedToken.uid,
@@ -40,11 +46,14 @@ export class FirebaseStrategy extends PassportStrategy(Strategy, 'firebase') {
         decodedToken.name,
       );
 
-      console.log('Firebase Strategy - User found/created:', { id: user?.id, firebase_uid: user?.firebase_uid });
+      console.log('Firebase Strategy - User found/created:', {
+        id: user?.id,
+        firebase_uid: user?.firebase_uid,
+      });
       return user;
     } catch (error) {
       console.error('Firebase Strategy - Validation error:', error.message);
       throw new UnauthorizedException('Invalid token');
     }
   }
-} 
+}

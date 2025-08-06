@@ -99,15 +99,17 @@ describe('AuthService', () => {
     it('should initialize Firebase with environment variables', () => {
       // Reset Firebase apps to force initialization
       (admin.apps as any) = [];
-      const testService = new AuthService(configService, mockDatabaseService as any);
+      new AuthService(configService, mockDatabaseService as any);
       expect(admin.initializeApp).toHaveBeenCalled();
     });
 
     it('should throw error when FIREBASE_PRIVATE_KEY is missing', () => {
       jest.spyOn(configService, 'get').mockReturnValue(undefined);
 
-      expect(() => new AuthService(configService, mockDatabaseService as any)).toThrow(
-        'Firebase private key not found. Please set FIREBASE_PRIVATE_KEY or FIREBASE_SERVICE_ACCOUNT_PATH environment variable.'
+      expect(
+        () => new AuthService(configService, mockDatabaseService as any),
+      ).toThrow(
+        'Firebase private key not found. Please set FIREBASE_PRIVATE_KEY or FIREBASE_SERVICE_ACCOUNT_PATH environment variable.',
       );
     });
 
@@ -117,7 +119,8 @@ describe('AuthService', () => {
       // Create a new module with invalid private key
       const invalidConfigService = {
         get: jest.fn((key: string) => {
-          if (key === 'FIREBASE_PRIVATE_KEY') return 'invalid-key-format-without-proper-headers';
+          if (key === 'FIREBASE_PRIVATE_KEY')
+            return 'invalid-key-format-without-proper-headers';
           if (key === 'FIREBASE_PROJECT_ID') return 'test-project-id';
           if (key === 'FIREBASE_CLIENT_EMAIL') return 'test@test.com';
           return 'test-value';
@@ -132,8 +135,13 @@ describe('AuthService', () => {
       console.error = jest.fn();
 
       expect(() => {
-        new AuthService(invalidConfigService as any, mockDatabaseService as any);
-      }).toThrow('Invalid Firebase private key format. Private key must be in PEM format with proper headers and footers.');
+        new AuthService(
+          invalidConfigService as any,
+          mockDatabaseService as any,
+        );
+      }).toThrow(
+        'Invalid Firebase private key format. Private key must be in PEM format with proper headers and footers.',
+      );
 
       // Restore console.error
       console.error = tempConsoleError;
@@ -170,7 +178,9 @@ describe('AuthService', () => {
       };
       mockAuth.verifyIdToken.mockRejectedValue(mockError);
 
-      await expect(service.verifyToken('expired-token')).rejects.toThrow('Token expired');
+      await expect(service.verifyToken('expired-token')).rejects.toThrow(
+        'Token expired',
+      );
     });
 
     it('should throw error for invalid token format', async () => {
@@ -180,7 +190,9 @@ describe('AuthService', () => {
       };
       mockAuth.verifyIdToken.mockRejectedValue(mockError);
 
-      await expect(service.verifyToken('invalid-token')).rejects.toThrow('Invalid token format');
+      await expect(service.verifyToken('invalid-token')).rejects.toThrow(
+        'Invalid token format',
+      );
     });
 
     it('should throw error for project not found', async () => {
@@ -190,7 +202,9 @@ describe('AuthService', () => {
       };
       mockAuth.verifyIdToken.mockRejectedValue(mockError);
 
-      await expect(service.verifyToken('invalid-token')).rejects.toThrow('Firebase project not found');
+      await expect(service.verifyToken('invalid-token')).rejects.toThrow(
+        'Firebase project not found',
+      );
     });
 
     it('should throw generic error for unknown error codes', async () => {
@@ -200,7 +214,9 @@ describe('AuthService', () => {
       };
       mockAuth.verifyIdToken.mockRejectedValue(mockError);
 
-      await expect(service.verifyToken('invalid-token')).rejects.toThrow('Token verification failed: Unknown error');
+      await expect(service.verifyToken('invalid-token')).rejects.toThrow(
+        'Token verification failed: Unknown error',
+      );
     });
   });
 
@@ -241,10 +257,16 @@ describe('AuthService', () => {
       };
       mockFromChain.select.mockReturnValue(mockSelectChain);
 
-      const result = await service.findOrCreateUser('test-uid', 'test@example.com');
+      const result = await service.findOrCreateUser(
+        'test-uid',
+        'test@example.com',
+      );
 
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('businesses');
-      expect(mockSelectChain.eq).toHaveBeenCalledWith('firebase_uid', 'test-uid');
+      expect(mockSelectChain.eq).toHaveBeenCalledWith(
+        'firebase_uid',
+        'test-uid',
+      );
       expect(result).toEqual(existingUser);
     });
 
@@ -281,7 +303,11 @@ describe('AuthService', () => {
       };
       mockFromChain.insert.mockReturnValue(mockInsertChain);
 
-      const result = await service.findOrCreateUser('test-uid', 'test@example.com', 'Test User');
+      const result = await service.findOrCreateUser(
+        'test-uid',
+        'test@example.com',
+        'Test User',
+      );
 
       expect(mockFromChain.insert).toHaveBeenCalledWith([
         {
@@ -310,7 +336,9 @@ describe('AuthService', () => {
       };
       mockFromChain.select.mockReturnValue(mockSelectChain);
 
-      await expect(service.findOrCreateUser('test-uid', 'test@example.com')).rejects.toThrow('Database error');
+      await expect(
+        service.findOrCreateUser('test-uid', 'test@example.com'),
+      ).rejects.toThrow('Database error');
     });
 
     it('should throw error when database error occurs during create', async () => {
@@ -337,7 +365,9 @@ describe('AuthService', () => {
       };
       mockFromChain.insert.mockReturnValue(mockInsertChain);
 
-      await expect(service.findOrCreateUser('test-uid', 'test@example.com')).rejects.toThrow('Creation failed');
+      await expect(
+        service.findOrCreateUser('test-uid', 'test@example.com'),
+      ).rejects.toThrow('Creation failed');
     });
   });
 
@@ -375,7 +405,10 @@ describe('AuthService', () => {
       const result = await service.getUserByFirebaseUid('test-uid');
 
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('businesses');
-      expect(mockSelectChain.eq).toHaveBeenCalledWith('firebase_uid', 'test-uid');
+      expect(mockSelectChain.eq).toHaveBeenCalledWith(
+        'firebase_uid',
+        'test-uid',
+      );
       expect(result).toEqual(user);
     });
 
@@ -391,7 +424,9 @@ describe('AuthService', () => {
       };
       mockFromChain.select.mockReturnValue(mockSelectChain);
 
-      await expect(service.getUserByFirebaseUid('test-uid')).rejects.toThrow('User not found');
+      await expect(service.getUserByFirebaseUid('test-uid')).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
@@ -413,4 +448,4 @@ describe('AuthService', () => {
       expect(result).toBe(false);
     });
   });
-}); 
+});

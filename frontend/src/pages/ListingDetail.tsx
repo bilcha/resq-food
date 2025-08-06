@@ -1,195 +1,216 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { Helmet } from 'react-helmet-async'
-import { ArrowLeft, MapPin, Clock, Star, Calendar, Package, Phone, Globe, AlertCircle } from 'lucide-react'
-import { listingsApi } from '../lib/offline-api'
-import { formatDistanceToNow, format } from 'date-fns'
-import ListingsMap from '../components/listings/ListingsMap'
-import { useTranslation } from 'react-i18next'
-import { formatPrice } from '../lib/currency'
-import i18n from '../lib/i18n'
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
+import {
+  ArrowLeft,
+  MapPin,
+  Clock,
+  Star,
+  Calendar,
+  Package,
+  Phone,
+  Globe,
+  AlertCircle,
+} from 'lucide-react';
+import { listingsApi } from '../lib/offline-api';
+import { formatDistanceToNow, format } from 'date-fns';
+import ListingsMap from '../components/listings/ListingsMap';
+import { useTranslation } from 'react-i18next';
+import { formatPrice } from '../lib/currency';
+import i18n from '../lib/i18n';
 
 const ListingDetail = () => {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const {
     data: listing,
     isLoading,
     isError,
-    error
+    error,
   } = useQuery({
     queryKey: ['listing', id],
     queryFn: () => listingsApi.getById(id!),
     enabled: !!id,
     retry: (failureCount, error) => {
       // Don't retry if offline
-      if (!navigator.onLine) return false
+      if (!navigator.onLine) return false;
       // Only retry network errors up to 2 times
-      return failureCount < 2
+      return failureCount < 2;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
     refetchOnWindowFocus: false,
     networkMode: 'offlineFirst',
-  })
+  });
 
   const formatTimeRemaining = (until: string) => {
     try {
-      const now = new Date()
-      const expiryDate = new Date(until)
-      
+      const now = new Date();
+      const expiryDate = new Date(until);
+
       // If the listing has already expired
       if (expiryDate <= now) {
-        return { text: t('components.listings.card.expired'), isExpired: true }
+        return { text: t('components.listings.card.expired'), isExpired: true };
       }
-      
+
       // Calculate time remaining with custom translation
-      const timeRemaining = formatDistanceToNow(expiryDate, { addSuffix: false })
-      return { text: translateTimeRemaining(timeRemaining), isExpired: false }
+      const timeRemaining = formatDistanceToNow(expiryDate, {
+        addSuffix: false,
+      });
+      return { text: translateTimeRemaining(timeRemaining), isExpired: false };
     } catch {
-      return { text: t('listing_detail.invalid_date'), isExpired: false }
+      return { text: t('listing_detail.invalid_date'), isExpired: false };
     }
-  }
+  };
 
   const translateTimeRemaining = (timeString: string) => {
     // Handle special cases first
     if (timeString.includes('less than')) {
-      const match = timeString.match(/less than (\d+)\s+(.+)/)
+      const match = timeString.match(/less than (\d+)\s+(.+)/);
       if (match) {
-        const count = parseInt(match[1])
-        const unit = match[2]
+        const count = parseInt(match[1]);
+        const unit = match[2];
         const unitMap: Record<string, string> = {
-          'minute': 'less_than_x_minutes',
-          'minutes': 'less_than_x_minutes'
-        }
-        const translationKey = unitMap[unit]
+          minute: 'less_than_x_minutes',
+          minutes: 'less_than_x_minutes',
+        };
+        const translationKey = unitMap[unit];
         if (translationKey) {
-          const params = getTimeParams(count, unit)
-          return t(`components.listings.card.time_remaining.${translationKey}`, params)
+          const params = getTimeParams(count, unit);
+          return t(
+            `components.listings.card.time_remaining.${translationKey}`,
+            params,
+          );
         }
       }
     }
-    
+
     if (timeString.includes('about')) {
-      const match = timeString.match(/about (\d+)\s+(.+)/)
+      const match = timeString.match(/about (\d+)\s+(.+)/);
       if (match) {
-        const count = parseInt(match[1])
-        const unit = match[2]
+        const count = parseInt(match[1]);
+        const unit = match[2];
         const unitMap: Record<string, string> = {
-          'hour': 'about_x_hours',
-          'hours': 'about_x_hours',
-          'month': 'about_x_months',
-          'months': 'about_x_months',
-          'year': 'about_x_years',
-          'years': 'about_x_years'
-        }
-        const translationKey = unitMap[unit]
+          hour: 'about_x_hours',
+          hours: 'about_x_hours',
+          month: 'about_x_months',
+          months: 'about_x_months',
+          year: 'about_x_years',
+          years: 'about_x_years',
+        };
+        const translationKey = unitMap[unit];
         if (translationKey) {
-          const params = getTimeParams(count, unit)
-          return t(`components.listings.card.time_remaining.${translationKey}`, params)
+          const params = getTimeParams(count, unit);
+          return t(
+            `components.listings.card.time_remaining.${translationKey}`,
+            params,
+          );
         }
       }
     }
-    
+
     // Parse the time string and translate it
-    const match = timeString.match(/(\d+)\s+(.+)/)
-    if (!match) return timeString
-    
-    const count = parseInt(match[1])
-    const unit = match[2]
-    
+    const match = timeString.match(/(\d+)\s+(.+)/);
+    if (!match) return timeString;
+
+    const count = parseInt(match[1]);
+    const unit = match[2];
+
     // Map English units to translation keys
     const unitMap: Record<string, string> = {
-      'minute': 'x_minutes',
-      'minutes': 'x_minutes',
-      'hour': 'x_hours',
-      'hours': 'x_hours',
-      'day': 'x_days',
-      'days': 'x_days',
-      'month': 'x_months',
-      'months': 'x_months',
-      'year': 'x_years',
-      'years': 'x_years'
-    }
-    
-    const translationKey = unitMap[unit]
+      minute: 'x_minutes',
+      minutes: 'x_minutes',
+      hour: 'x_hours',
+      hours: 'x_hours',
+      day: 'x_days',
+      days: 'x_days',
+      month: 'x_months',
+      months: 'x_months',
+      year: 'x_years',
+      years: 'x_years',
+    };
+
+    const translationKey = unitMap[unit];
     if (translationKey) {
-      const params = getTimeParams(count, unit)
-      return t(`components.listings.card.time_remaining.${translationKey}`, params)
+      const params = getTimeParams(count, unit);
+      return t(
+        `components.listings.card.time_remaining.${translationKey}`,
+        params,
+      );
     }
-    
-    return timeString
-  }
+
+    return timeString;
+  };
 
   const getTimeParams = (count: number, unit: string): Record<string, any> => {
-    const params: Record<string, any> = { count }
-    
+    const params: Record<string, any> = { count };
+
     // Get current language
-    const currentLang = i18n.language
-    
+    const currentLang = i18n.language;
+
     if (currentLang === 'uk') {
       // Ukrainian grammatical cases for time units
       if (unit.includes('minute')) {
-        if (count === 1) params.minutes = 'хвилина'
-        else if (count >= 2 && count <= 4) params.minutes = 'хвилини'
-        else params.minutes = 'хвилин'
+        if (count === 1) params.minutes = 'хвилина';
+        else if (count >= 2 && count <= 4) params.minutes = 'хвилини';
+        else params.minutes = 'хвилин';
       } else if (unit.includes('hour')) {
-        if (count === 1) params.hours = 'година'
-        else if (count >= 2 && count <= 4) params.hours = 'години'
-        else params.hours = 'годин'
+        if (count === 1) params.hours = 'година';
+        else if (count >= 2 && count <= 4) params.hours = 'години';
+        else params.hours = 'годин';
       } else if (unit.includes('day')) {
-        if (count === 1) params.days = 'день'
-        else if (count >= 2 && count <= 4) params.days = 'дні'
-        else params.days = 'днів'
+        if (count === 1) params.days = 'день';
+        else if (count >= 2 && count <= 4) params.days = 'дні';
+        else params.days = 'днів';
       } else if (unit.includes('month')) {
-        if (count === 1) params.months = 'місяць'
-        else if (count >= 2 && count <= 4) params.months = 'місяці'
-        else params.months = 'місяців'
+        if (count === 1) params.months = 'місяць';
+        else if (count >= 2 && count <= 4) params.months = 'місяці';
+        else params.months = 'місяців';
       } else if (unit.includes('year')) {
-        if (count === 1) params.years = 'рік'
-        else if (count >= 2 && count <= 4) params.years = 'роки'
-        else params.years = 'років'
+        if (count === 1) params.years = 'рік';
+        else if (count >= 2 && count <= 4) params.years = 'роки';
+        else params.years = 'років';
       }
     } else {
       // English time units
       if (unit.includes('minute')) {
-        params.minutes = count === 1 ? 'minute' : 'minutes'
+        params.minutes = count === 1 ? 'minute' : 'minutes';
       } else if (unit.includes('hour')) {
-        params.hours = count === 1 ? 'hour' : 'hours'
+        params.hours = count === 1 ? 'hour' : 'hours';
       } else if (unit.includes('day')) {
-        params.days = count === 1 ? 'day' : 'days'
+        params.days = count === 1 ? 'day' : 'days';
       } else if (unit.includes('month')) {
-        params.months = count === 1 ? 'month' : 'months'
+        params.months = count === 1 ? 'month' : 'months';
       } else if (unit.includes('year')) {
-        params.years = count === 1 ? 'year' : 'years'
+        params.years = count === 1 ? 'year' : 'years';
       }
     }
-    
-    return params
-  }
+
+    return params;
+  };
 
   const formatDateTime = (dateString: string) => {
     try {
-      return format(new Date(dateString), 'PPp')
+      return format(new Date(dateString), 'PPp');
     } catch {
-      return t('listing_detail.invalid_date')
+      return t('listing_detail.invalid_date');
     }
-  }
+  };
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      'Bakery': 'bg-orange-100 text-orange-800',
+      Bakery: 'bg-orange-100 text-orange-800',
       'Fruits & Vegetables': 'bg-green-100 text-green-800',
-      'Dairy': 'bg-blue-100 text-blue-800',
+      Dairy: 'bg-blue-100 text-blue-800',
       'Meat & Fish': 'bg-red-100 text-red-800',
       'Prepared Foods': 'bg-purple-100 text-purple-800',
-      'Desserts': 'bg-pink-100 text-pink-800',
-      'Beverages': 'bg-cyan-100 text-cyan-800',
-      'Other': 'bg-gray-100 text-gray-800'
-    }
-    return colors[category] || colors['Other']
-  }
+      Desserts: 'bg-pink-100 text-pink-800',
+      Beverages: 'bg-cyan-100 text-cyan-800',
+      Other: 'bg-gray-100 text-gray-800',
+    };
+    return colors[category] || colors['Other'];
+  };
 
   if (isError) {
     return (
@@ -201,7 +222,9 @@ const ListingDetail = () => {
               {t('listing_detail.error_loading')}
             </h2>
             <p className="text-red-700 mb-4">
-              {error instanceof Error ? error.message : t('listing_detail.listing_not_found')}
+              {error instanceof Error
+                ? error.message
+                : t('listing_detail.listing_not_found')}
             </p>
             <div className="space-x-3">
               <button
@@ -221,7 +244,7 @@ const ListingDetail = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (isLoading) {
@@ -230,7 +253,7 @@ const ListingDetail = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button Skeleton */}
           <div className="skeleton h-10 w-32 mb-6"></div>
-          
+
           {/* Header Skeleton */}
           <div className="card mb-8">
             <div className="skeleton h-8 w-3/4 mb-4"></div>
@@ -250,7 +273,7 @@ const ListingDetail = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!listing) {
@@ -266,10 +289,10 @@ const ListingDetail = () => {
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
-  const { businesses } = listing
+  const { businesses } = listing;
 
   return (
     <>
@@ -298,7 +321,9 @@ const ListingDetail = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <span className={`badge ${getCategoryColor(listing.category)}`}>
+                      <span
+                        className={`badge ${getCategoryColor(listing.category)}`}
+                      >
                         {listing.category}
                       </span>
                       {listing.quantity > 1 && (
@@ -311,7 +336,7 @@ const ListingDetail = () => {
                       {listing.title}
                     </h1>
                   </div>
-                  
+
                   <div className="text-right">
                     {listing.is_free ? (
                       <div className="text-2xl font-bold text-green-600">
@@ -359,24 +384,35 @@ const ListingDetail = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   {t('listing_detail.business_information')}
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <MapPin size={20} className="text-gray-400 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-gray-900">{businesses?.name || t('listing_detail.unknown_business')}</h4>
-                      <p className="text-gray-600">{businesses?.address || t('listing_detail.address_not_available')}</p>
+                      <h4 className="font-medium text-gray-900">
+                        {businesses?.name ||
+                          t('listing_detail.unknown_business')}
+                      </h4>
+                      <p className="text-gray-600">
+                        {businesses?.address ||
+                          t('listing_detail.address_not_available')}
+                      </p>
                     </div>
                   </div>
 
                   {businesses.google_rating && (
                     <div className="flex items-center space-x-3">
-                      <Star size={20} className="text-yellow-400 fill-current" />
+                      <Star
+                        size={20}
+                        className="text-yellow-400 fill-current"
+                      />
                       <div>
                         <span className="font-medium text-gray-900">
                           {businesses.google_rating} {t('listing_detail.stars')}
                         </span>
-                        <p className="text-sm text-gray-600">{t('listing_detail.google_rating')}</p>
+                        <p className="text-sm text-gray-600">
+                          {t('listing_detail.google_rating')}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -405,10 +441,7 @@ const ListingDetail = () => {
                       {t('listing_detail.location')}
                     </h3>
                   </div>
-                  <ListingsMap
-                    listings={[listing]}
-                    className="h-64"
-                  />
+                  <ListingsMap listings={[listing]} className="h-64" />
                 </div>
               )}
             </div>
@@ -420,17 +453,23 @@ const ListingDetail = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   {t('listing_detail.availability')}
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
-                    <Clock size={20} className={`mt-0.5 ${formatTimeRemaining(listing.available_until).isExpired ? 'text-orange-500' : 'text-green-500'}`} />
+                    <Clock
+                      size={20}
+                      className={`mt-0.5 ${formatTimeRemaining(listing.available_until).isExpired ? 'text-orange-500' : 'text-green-500'}`}
+                    />
                     <div>
                       <p className="font-medium text-gray-900">
-                        {!formatTimeRemaining(listing.available_until).isExpired && `${t('listing_detail.available_until_label')} `}
+                        {!formatTimeRemaining(listing.available_until)
+                          .isExpired &&
+                          `${t('listing_detail.available_until_label')} `}
                         {formatTimeRemaining(listing.available_until).text}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {t('listing_detail.until')} {formatDateTime(listing.available_until)}
+                        {t('listing_detail.until')}{' '}
+                        {formatDateTime(listing.available_until)}
                       </p>
                     </div>
                   </div>
@@ -454,7 +493,10 @@ const ListingDetail = () => {
                         {t('listing_detail.quantity')}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {listing.quantity} {listing.quantity === 1 ? t('listing_detail.item_available') : t('listing_detail.items_available')}
+                        {listing.quantity}{' '}
+                        {listing.quantity === 1
+                          ? t('listing_detail.item_available')
+                          : t('listing_detail.items_available')}
                       </p>
                     </div>
                   </div>
@@ -469,7 +511,7 @@ const ListingDetail = () => {
                 <p className="text-gray-600 text-sm mb-4">
                   {t('listing_detail.contact_business_message')}
                 </p>
-                
+
                 <div className="space-y-3">
                   {businesses.google_place_id && (
                     <a
@@ -482,16 +524,17 @@ const ListingDetail = () => {
                       {t('listing_detail.get_directions')}
                     </a>
                   )}
-                  
+
                   <button className="btn btn-secondary w-full">
                     <Phone size={16} className="mr-2" />
                     {t('listing_detail.contact_business')}
                   </button>
                 </div>
-                
+
                 <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-yellow-800 text-xs">
-                    <strong>{t('listing_detail.note_label')}</strong> {t('listing_detail.note_message')}
+                    <strong>{t('listing_detail.note_label')}</strong>{' '}
+                    {t('listing_detail.note_message')}
                   </p>
                 </div>
               </div>
@@ -501,31 +544,45 @@ const ListingDetail = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   {t('listing_detail.listing_details')}
                 </h3>
-                
+
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">{t('listing_detail.listed')}</span>
+                    <span className="text-gray-600">
+                      {t('listing_detail.listed')}
+                    </span>
                     <span className="text-gray-900">
-                      {formatDistanceToNow(new Date(listing.created_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(listing.created_at), {
+                        addSuffix: true,
+                      })}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between">
-                    <span className="text-gray-600">{t('listing_detail.updated')}</span>
+                    <span className="text-gray-600">
+                      {t('listing_detail.updated')}
+                    </span>
                     <span className="text-gray-900">
-                      {formatDistanceToNow(new Date(listing.updated_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(listing.updated_at), {
+                        addSuffix: true,
+                      })}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between">
-                    <span className="text-gray-600">{t('listing_detail.category')}</span>
+                    <span className="text-gray-600">
+                      {t('listing_detail.category')}
+                    </span>
                     <span className="text-gray-900">{listing.category}</span>
                   </div>
-                  
+
                   <div className="flex justify-between">
-                    <span className="text-gray-600">{t('listing_detail.type')}</span>
+                    <span className="text-gray-600">
+                      {t('listing_detail.type')}
+                    </span>
                     <span className="text-gray-900">
-                      {listing.is_free ? t('listing_detail.free') : t('listing_detail.paid')}
+                      {listing.is_free
+                        ? t('listing_detail.free')
+                        : t('listing_detail.paid')}
                     </span>
                   </div>
                 </div>
@@ -535,7 +592,7 @@ const ListingDetail = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default ListingDetail 
+export default ListingDetail;

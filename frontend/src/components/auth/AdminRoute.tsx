@@ -1,15 +1,15 @@
-import { ReactNode } from 'react'
-import { Navigate } from 'react-router-dom'
-import { useAuthStore } from '../../store/auth'
-import { useTranslation } from 'react-i18next'
+import { ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/auth';
+import { useTranslation } from 'react-i18next';
 
 interface AdminRouteProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const AdminRoute = ({ children }: AdminRouteProps) => {
-  const { isAuthenticated, isLoading, user } = useAuthStore()
-  const { t } = useTranslation()
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
@@ -19,20 +19,20 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
           <p>{t('components.auth.loading')}</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
 
   // For now, we'll assume admin access for authenticated users
   // In a real app, you'd check user roles/permissions
   if (!user) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/dashboard" replace />;
   }
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};
 
-export default AdminRoute 
+export default AdminRoute;

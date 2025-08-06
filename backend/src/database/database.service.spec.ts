@@ -67,7 +67,7 @@ describe('DatabaseService', () => {
             autoRefreshToken: false,
             persistSession: false,
           },
-        }
+        },
       );
     });
 
@@ -75,7 +75,7 @@ describe('DatabaseService', () => {
       jest.spyOn(configService, 'get').mockReturnValue(undefined);
 
       await expect(service.onModuleInit()).rejects.toThrow(
-        'Missing Supabase configuration. SUPABASE_SERVICE_KEY is required for backend operations.'
+        'Missing Supabase configuration. SUPABASE_SERVICE_KEY is required for backend operations.',
       );
     });
 
@@ -86,7 +86,7 @@ describe('DatabaseService', () => {
       });
 
       await expect(service.onModuleInit()).rejects.toThrow(
-        'Missing Supabase configuration. SUPABASE_SERVICE_KEY is required for backend operations.'
+        'Missing Supabase configuration. SUPABASE_SERVICE_KEY is required for backend operations.',
       );
     });
   });
@@ -134,7 +134,10 @@ describe('DatabaseService', () => {
         statusText: 'OK',
       });
 
-      const result = await service.query('SELECT * FROM test_table WHERE id = $1', [1]);
+      const result = await service.query(
+        'SELECT * FROM test_table WHERE id = $1',
+        [1],
+      );
 
       expect(mockSupabaseClient.rpc).toHaveBeenCalledWith('execute_sql', {
         sql: 'SELECT * FROM test_table WHERE id = $1',
@@ -161,13 +164,17 @@ describe('DatabaseService', () => {
         statusText: 'Bad Request',
       });
 
-      await expect(service.query('SELECT * FROM test_table')).rejects.toThrow(mockError);
+      await expect(service.query('SELECT * FROM test_table')).rejects.toThrow(
+        mockError,
+      );
     });
 
     it('should handle and rethrow unexpected errors', async () => {
       mockSupabaseClient.rpc.mockRejectedValue(new Error('Network error'));
 
-      await expect(service.query('SELECT * FROM test_table')).rejects.toThrow('Network error');
+      await expect(service.query('SELECT * FROM test_table')).rejects.toThrow(
+        'Network error',
+      );
     });
   });
-}); 
+});
