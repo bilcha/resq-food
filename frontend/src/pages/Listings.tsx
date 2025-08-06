@@ -7,9 +7,10 @@ import ListingCard from '../components/listings/ListingCard'
 import ListingFiltersComponent from '../components/listings/ListingFilters'
 import ListingsMap from '../components/listings/ListingsMap'
 import { useTranslation } from 'react-i18next'
+import { formatPrice } from '../lib/currency'
 
 const Listings = () => {
-  const [filters, setFilters] = useState<ListingFilters>({})
+  const [filters, setFilters] = useState<ListingFilters>({ hide_expired: true })
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null)
   const { t } = useTranslation()
@@ -284,7 +285,7 @@ const Listings = () => {
                                   <span className={`text-xs font-medium ${
                                     listing.is_free ? 'text-green-600' : 'text-gray-900'
                                   }`}>
-                                    {listing.is_free ? t('listing_detail.free') : `€${listing.price.toFixed(2)}`}
+                                    {listing.is_free ? t('listing_detail.free') : formatPrice(listing.price, false)}
                                   </span>
                                   {listing.businesses?.google_rating && (
                                     <div className="flex items-center text-xs text-gray-500">

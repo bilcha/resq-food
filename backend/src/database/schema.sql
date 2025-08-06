@@ -34,7 +34,7 @@ CREATE TABLE listings (
     available_until TIMESTAMP WITH TIME ZONE,
     quantity INTEGER DEFAULT 1,
     is_active BOOLEAN DEFAULT true,
-    is_approved BOOLEAN DEFAULT false,
+    is_approved BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

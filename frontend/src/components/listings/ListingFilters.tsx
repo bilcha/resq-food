@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Search, Filter, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ListingFilters, FOOD_CATEGORIES } from '../../lib/api'
+import { CURRENCY } from '../../lib/currency'
 
 interface ListingFiltersProps {
   filters: ListingFilters
@@ -32,13 +33,13 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
   }
 
   const resetFilters = () => {
-    const resetFilters = { search: filters.search } // Keep search
+    const resetFilters = { search: filters.search, hide_expired: true } // Keep search, set hide_expired to true
     setLocalFilters(resetFilters)
     onFiltersChange(resetFilters)
     setIsFilterOpen(false)
   }
 
-  const hasActiveFilters = !!(filters.category || filters.is_free !== undefined || filters.min_price || filters.max_price)
+  const hasActiveFilters = !!(filters.category || filters.is_free !== undefined || filters.min_price || filters.max_price || filters.hide_expired !== true)
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
@@ -93,7 +94,7 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
 
             {/* Price Range */}
             <div>
-              <label className="label">{t('components.listings.filters.min_price')} (€)</label>
+              <label className="label">{t('components.listings.filters.min_price')} ({CURRENCY.CODE})</label>
               <input
                 type="number"
                 min="0"
@@ -106,7 +107,7 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
             </div>
 
             <div>
-              <label className="label">{t('components.listings.filters.max_price')} (€)</label>
+              <label className="label">{t('components.listings.filters.max_price')} ({CURRENCY.CODE})</label>
               <input
                 type="number"
                 min="0"
@@ -131,6 +132,21 @@ const ListingFiltersComponent = ({ filters, onFiltersChange, isLoading }: Listin
                 <option value="false">{t('components.listings.filters.price_paid')}</option>
               </select>
             </div>
+          </div>
+
+          {/* Expired Filter */}
+          <div className="mt-4">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={localFilters.hide_expired !== false}
+                onChange={(e) => handleFilterChange('hide_expired', e.target.checked)}
+              />
+              <span className="text-sm text-gray-700">
+                {t('components.listings.filters.hide_expired')}
+              </span>
+            </label>
           </div>
 
           {/* Filter Actions */}

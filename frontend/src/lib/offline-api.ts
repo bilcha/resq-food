@@ -129,7 +129,7 @@ class OfflineFirstAPI {
         available_until: data.available_until,
         quantity: data.quantity || 1,
         is_active: true,
-        is_approved: false, // Will be updated when synced
+        is_approved: true, // Listings are immediately approved
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         businesses: {} as Business // Will be populated when synced

@@ -7,7 +7,6 @@ import {
   Eye, 
   Calendar, 
   Package, 
-  Euro,
   AlertCircle, 
   CheckCircle,
   Clock,
@@ -18,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { listingsApi, Listing, CreateListingData, UpdateListingData } from '../../lib/offline-api'
 import { useAuthStore } from '../../store/auth'
 import ListingForm from './ListingForm'
+import { formatPrice } from '../../lib/currency'
 
 interface ListingManagementProps {
   businessId: string
@@ -145,15 +145,6 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     const availableFrom = new Date(listing.available_from)
     const availableUntil = new Date(listing.available_until)
 
-    if (!listing.is_approved) {
-      return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          <Clock size={12} className="mr-1" />
-          {t('components.listings.management.status.pending_approval')}
-        </span>
-      )
-    }
-
     if (now < availableFrom) {
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -179,9 +170,9 @@ export default function ListingManagement({ businessId }: ListingManagementProps
     )
   }
 
-  const formatPrice = (price: number, isFree: boolean) => {
+  const formatPriceLocal = (price: number, isFree: boolean) => {
     if (isFree) return t('listing_detail.free')
-    return `€${price.toFixed(2)}`
+    return formatPrice(price, false)
   }
 
   if (isLoading) {
@@ -333,7 +324,7 @@ export default function ListingManagement({ businessId }: ListingManagementProps
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">{t('components.listings.management.price')}:</span>
                     <span className="font-medium text-primary-600">
-                      {formatPrice(listing.price, listing.is_free)}
+                      {formatPriceLocal(listing.price, listing.is_free)}
                     </span>
                   </div>
                   

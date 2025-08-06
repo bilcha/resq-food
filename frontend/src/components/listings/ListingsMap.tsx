@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { loadGoogleMaps } from '../../lib/google-maps-loader'
 import { useTranslation } from 'react-i18next'
 import { Listing } from '../../lib/api'
-import { MapPin, Euro, Star } from 'lucide-react'
+import { MapPin, Star } from 'lucide-react'
+import { formatPrice } from '../../lib/currency'
 
 interface ListingsMapProps {
   listings: Listing[]
@@ -106,7 +107,7 @@ const ListingsMap = ({ listings, onListingSelect, className = '' }: ListingsMapP
               ` : ''}
             </div>
             <div class="text-sm font-semibold ${listing.is_free ? 'text-green-600' : 'text-gray-900'}">
-              ${listing.is_free ? t('listing_detail.free') : `€${listing.price.toFixed(2)}`}
+              ${listing.is_free ? t('listing_detail.free') : `${formatPrice(listing.price, false)}`}
             </div>
           </div>
         </div>

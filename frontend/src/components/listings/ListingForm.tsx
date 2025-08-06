@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react'
-import { Calendar, Upload, X, Loader2, Euro, Package, Clock } from 'lucide-react'
+import { Calendar, Upload, X, Loader2, Package, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { FOOD_CATEGORIES, CreateListingData, UpdateListingData, uploadApi } from '../../lib/offline-api'
+import { CURRENCY } from '../../lib/currency'
 
 interface ListingFormProps {
   initialData?: Partial<CreateListingData>
@@ -225,10 +226,12 @@ export default function ListingForm({
         {!formData.is_free && (
           <div>
             <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-              {t('components.listings.form.price')} (€) *
+              {t('components.listings.form.price')} ({CURRENCY.CODE}) *
             </label>
             <div className="relative">
-              <Euro className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm font-medium">
+                {CURRENCY.SYMBOL}
+              </span>
               <input
                 type="number"
                 id="price"

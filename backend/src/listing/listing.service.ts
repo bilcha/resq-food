@@ -94,7 +94,7 @@ export class ListingService {
           available_until: listingData.available_until,
           quantity: listingData.quantity || 1,
           is_active: true,
-          is_approved: false,
+          is_approved: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },

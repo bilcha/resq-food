@@ -96,8 +96,8 @@ const resources = {
         grid_view: "Таблиця",
         map_view: "Мапа",
         loading: "Завантаження оголошень...",
-        listings_found: "знайдено оголошень",
-        listing_found: "знайдено оголошення",
+        listings_found: "оголошень знайдено",
+        listing_found: "оголошення знайдено",
         error_loading: "Помилка завантаження оголошень",
         error_message: "Щось пішло не так під час отримання оголошень.",
         try_again: "Спробувати знову",
@@ -196,7 +196,7 @@ const resources = {
         view_on_google_maps: "Переглянути в Google Картах",
         location: "Місцезнаходження",
         availability: "Доступність",
-        available_until_label: "Доступно",
+        available_until_label: "Доступно ще",
         until: "До",
         available_from: "Доступно з",
         quantity: "Кількість",
@@ -354,7 +354,7 @@ const resources = {
             placeholders: {
               title: "Наприклад: Свіжі круасани",
               description: "Опишіть їжу, стан та будь-які додаткові інструкції...",
-              price: "0.00"
+              price: "0.00 ₴"
             },
             validation: {
               title_required: "Назва обов'язкова",
@@ -369,7 +369,19 @@ const resources = {
           },
           card: {
             unknown_business: "Невідомий бізнес",
-            available_until: "Доступно"
+            available_until: "Доступно ще",
+            expired: "Прострочено",
+            time_remaining: {
+              less_than_x_minutes: "менше {{count}} {{minutes}}",
+              x_minutes: "{{count}} {{minutes}}",
+              about_x_hours: "близько {{count}} {{hours}}",
+              x_hours: "{{count}} {{hours}}",
+              x_days: "{{count}} {{days}}",
+              about_x_months: "близько {{count}} {{months}}",
+              x_months: "{{count}} {{months}}",
+              about_x_years: "близько {{count}} {{years}}",
+              x_years: "{{count}} {{years}}"
+            }
           },
           filters: {
             search_placeholder: "Пошук оголошень...",
@@ -382,6 +394,7 @@ const resources = {
             price_all: "Всі ціни",
             price_free: "Безкоштовно",
             price_paid: "Платно",
+            hide_expired: "Не показувати прострочені оголошення",
             reset: "Скинути",
             apply_filters: "Застосувати фільтри",
             clear_filters: "Очистити фільтри"
@@ -592,7 +605,7 @@ const resources = {
         view_on_google_maps: "View on Google Maps",
         location: "Location",
         availability: "Availability",
-        available_until_label: "Available",
+        available_until_label: "Available for",
         until: "Until",
         available_from: "Available from",
         quantity: "Quantity",
@@ -750,7 +763,7 @@ const resources = {
             placeholders: {
               title: "e.g. Fresh croissants",
               description: "Describe the food, condition, and any special instructions...",
-              price: "0.00"
+              price: "0.00 ₴"
             },
             validation: {
               title_required: "Title is required",
@@ -765,7 +778,19 @@ const resources = {
           },
           card: {
             unknown_business: "Unknown Business",
-            available_until: "Available"
+            available_until: "Available",
+            expired: "Expired",
+            time_remaining: {
+              less_than_x_minutes: "less than {{count}} {{minutes}}",
+              x_minutes: "{{count}} {{minutes}}",
+              about_x_hours: "about {{count}} {{hours}}",
+              x_hours: "{{count}} {{hours}}",
+              x_days: "{{count}} {{days}}",
+              about_x_months: "about {{count}} {{months}}",
+              x_months: "{{count}} {{months}}",
+              about_x_years: "about {{count}} {{years}}",
+              x_years: "{{count}} {{years}}"
+            }
           },
           filters: {
             search_placeholder: "Search listings...",
@@ -778,6 +803,7 @@ const resources = {
             price_all: "All Prices",
             price_free: "Free",
             price_paid: "Paid",
+            hide_expired: "Don't show expired listings",
             reset: "Reset",
             apply_filters: "Apply Filters",
             clear_filters: "Clear Filters"

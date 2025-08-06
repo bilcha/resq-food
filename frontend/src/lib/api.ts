@@ -63,6 +63,7 @@ export interface ListingFilters {
   min_price?: number
   max_price?: number
   search?: string
+  hide_expired?: boolean
 }
 
 export interface CreateListingData {
@@ -110,6 +111,15 @@ export const listingsApi = {
         listing.description.toLowerCase().includes(searchTerm) ||
         (listing.businesses?.name && listing.businesses.name.toLowerCase().includes(searchTerm))
       )
+    }
+    
+    // Filter out expired listings if hide_expired is true
+    if (filters?.hide_expired !== false) { // Default to true if not explicitly set to false
+      const now = new Date()
+      listings = listings.filter(listing => {
+        const availableUntil = new Date(listing.available_until)
+        return availableUntil > now
+      })
     }
     
     return listings

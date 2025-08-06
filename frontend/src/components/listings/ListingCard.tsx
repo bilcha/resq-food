@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
-import { MapPin, Clock, Star, Euro } from 'lucide-react'
+import { MapPin, Clock, Star } from 'lucide-react'
 import { Listing } from '../../lib/api'
 import { formatDistanceToNow } from 'date-fns'
 import { useTranslation } from 'react-i18next'
+import { formatPrice } from '../../lib/currency'
+import i18n from '../../lib/i18n'
 
 interface ListingCardProps {
   listing: Listing
@@ -25,10 +27,137 @@ const ListingCard = ({ listing }: ListingCardProps) => {
 
   const formatTimeRemaining = (until: string) => {
     try {
-      return formatDistanceToNow(new Date(until), { addSuffix: true })
+      const now = new Date()
+      const expiryDate = new Date(until)
+      
+      // If the listing has already expired
+      if (expiryDate <= now) {
+        return { text: t('components.listings.card.expired'), isExpired: true }
+      }
+      
+      // Calculate time remaining with custom translation
+      const timeRemaining = formatDistanceToNow(expiryDate, { addSuffix: false })
+      return { text: translateTimeRemaining(timeRemaining), isExpired: false }
     } catch {
-      return 'Invalid date'
+      return { text: 'Invalid date', isExpired: false }
     }
+  }
+
+  const translateTimeRemaining = (timeString: string) => {
+    // Handle special cases first
+    if (timeString.includes('less than')) {
+      const match = timeString.match(/less than (\d+)\s+(.+)/)
+      if (match) {
+        const count = parseInt(match[1])
+        const unit = match[2]
+        const unitMap: Record<string, string> = {
+          'minute': 'less_than_x_minutes',
+          'minutes': 'less_than_x_minutes'
+        }
+        const translationKey = unitMap[unit]
+        if (translationKey) {
+          const params = getTimeParams(count, unit)
+          return t(`components.listings.card.time_remaining.${translationKey}`, params)
+        }
+      }
+    }
+    
+    if (timeString.includes('about')) {
+      const match = timeString.match(/about (\d+)\s+(.+)/)
+      if (match) {
+        const count = parseInt(match[1])
+        const unit = match[2]
+        const unitMap: Record<string, string> = {
+          'hour': 'about_x_hours',
+          'hours': 'about_x_hours',
+          'month': 'about_x_months',
+          'months': 'about_x_months',
+          'year': 'about_x_years',
+          'years': 'about_x_years'
+        }
+        const translationKey = unitMap[unit]
+        if (translationKey) {
+          const params = getTimeParams(count, unit)
+          return t(`components.listings.card.time_remaining.${translationKey}`, params)
+        }
+      }
+    }
+    
+    // Parse the time string and translate it
+    const match = timeString.match(/(\d+)\s+(.+)/)
+    if (!match) return timeString
+    
+    const count = parseInt(match[1])
+    const unit = match[2]
+    
+    // Map English units to translation keys
+    const unitMap: Record<string, string> = {
+      'minute': 'x_minutes',
+      'minutes': 'x_minutes',
+      'hour': 'x_hours',
+      'hours': 'x_hours',
+      'day': 'x_days',
+      'days': 'x_days',
+      'month': 'x_months',
+      'months': 'x_months',
+      'year': 'x_years',
+      'years': 'x_years'
+    }
+    
+    const translationKey = unitMap[unit]
+    if (translationKey) {
+      const params = getTimeParams(count, unit)
+      return t(`components.listings.card.time_remaining.${translationKey}`, params)
+    }
+    
+    return timeString
+  }
+
+  const getTimeParams = (count: number, unit: string): Record<string, any> => {
+    const params: Record<string, any> = { count }
+    
+    // Get current language
+    const currentLang = i18n.language
+    
+    if (currentLang === 'uk') {
+      // Ukrainian grammatical cases for time units
+      if (unit.includes('minute')) {
+        if (count === 1) params.minutes = 'хвилина'
+        else if (count >= 2 && count <= 4) params.minutes = 'хвилини'
+        else params.minutes = 'хвилин'
+      } else if (unit.includes('hour')) {
+        if (count === 1) params.hours = 'година'
+        else if (count >= 2 && count <= 4) params.hours = 'години'
+        else params.hours = 'годин'
+      } else if (unit.includes('day')) {
+        if (count === 1) params.days = 'день'
+        else if (count >= 2 && count <= 4) params.days = 'дні'
+        else params.days = 'днів'
+      } else if (unit.includes('month')) {
+        if (count === 1) params.months = 'місяць'
+        else if (count >= 2 && count <= 4) params.months = 'місяці'
+        else params.months = 'місяців'
+      } else if (unit.includes('year')) {
+        if (count === 1) params.years = 'рік'
+        else if (count >= 2 && count <= 4) params.years = 'роки'
+        else params.years = 'років'
+      }
+    } else {
+      // English time units
+      if (unit.includes('minute')) {
+        params.minutes = count === 1 ? 'minute' : 'minutes'
+      } else if (unit.includes('hour')) {
+        params.hours = count === 1 ? 'hour' : 'hours'
+      } else if (unit.includes('day')) {
+        params.days = count === 1 ? 'day' : 'days'
+      } else if (unit.includes('month')) {
+        params.months = count === 1 ? 'month' : 'months'
+      } else if (unit.includes('year')) {
+        params.years = count === 1 ? 'year' : 'years'
+      }
+    }
+    
+    return params
   }
 
   const getCategoryColor = (category: string) => {
@@ -70,8 +199,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
               </span>
             ) : (
               <span className="badge bg-white text-gray-900 font-semibold shadow-sm">
-                <Euro size={12} className="mr-1" />
-                {price.toFixed(2)}
+                {formatPrice(price, false)}
               </span>
             )}
           </div>
@@ -118,9 +246,12 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           </div>
 
           {/* Time Remaining */}
-          <div className="flex items-center text-sm text-orange-600 space-x-1">
+          <div className={`flex items-center text-sm space-x-1 ${formatTimeRemaining(available_until).isExpired ? 'text-orange-600' : 'text-green-600'}`}>
             <Clock size={14} />
-            <span>{t('components.listings.card.available_until')} {formatTimeRemaining(available_until)}</span>
+            <span>
+              {!formatTimeRemaining(available_until).isExpired && `${t('components.listings.card.available_until')} `}
+              {formatTimeRemaining(available_until).text}
+            </span>
           </div>
         </div>
       </div>

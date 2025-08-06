@@ -1,11 +1,13 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
-import { ArrowLeft, MapPin, Clock, Star, Calendar, Package, Euro, Phone, Globe, AlertCircle } from 'lucide-react'
+import { ArrowLeft, MapPin, Clock, Star, Calendar, Package, Phone, Globe, AlertCircle } from 'lucide-react'
 import { listingsApi } from '../lib/offline-api'
 import { formatDistanceToNow, format } from 'date-fns'
 import ListingsMap from '../components/listings/ListingsMap'
 import { useTranslation } from 'react-i18next'
+import { formatPrice } from '../lib/currency'
+import i18n from '../lib/i18n'
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -34,10 +36,137 @@ const ListingDetail = () => {
 
   const formatTimeRemaining = (until: string) => {
     try {
-      return formatDistanceToNow(new Date(until), { addSuffix: true })
+      const now = new Date()
+      const expiryDate = new Date(until)
+      
+      // If the listing has already expired
+      if (expiryDate <= now) {
+        return { text: t('components.listings.card.expired'), isExpired: true }
+      }
+      
+      // Calculate time remaining with custom translation
+      const timeRemaining = formatDistanceToNow(expiryDate, { addSuffix: false })
+      return { text: translateTimeRemaining(timeRemaining), isExpired: false }
     } catch {
-      return t('listing_detail.invalid_date')
+      return { text: t('listing_detail.invalid_date'), isExpired: false }
     }
+  }
+
+  const translateTimeRemaining = (timeString: string) => {
+    // Handle special cases first
+    if (timeString.includes('less than')) {
+      const match = timeString.match(/less than (\d+)\s+(.+)/)
+      if (match) {
+        const count = parseInt(match[1])
+        const unit = match[2]
+        const unitMap: Record<string, string> = {
+          'minute': 'less_than_x_minutes',
+          'minutes': 'less_than_x_minutes'
+        }
+        const translationKey = unitMap[unit]
+        if (translationKey) {
+          const params = getTimeParams(count, unit)
+          return t(`components.listings.card.time_remaining.${translationKey}`, params)
+        }
+      }
+    }
+    
+    if (timeString.includes('about')) {
+      const match = timeString.match(/about (\d+)\s+(.+)/)
+      if (match) {
+        const count = parseInt(match[1])
+        const unit = match[2]
+        const unitMap: Record<string, string> = {
+          'hour': 'about_x_hours',
+          'hours': 'about_x_hours',
+          'month': 'about_x_months',
+          'months': 'about_x_months',
+          'year': 'about_x_years',
+          'years': 'about_x_years'
+        }
+        const translationKey = unitMap[unit]
+        if (translationKey) {
+          const params = getTimeParams(count, unit)
+          return t(`components.listings.card.time_remaining.${translationKey}`, params)
+        }
+      }
+    }
+    
+    // Parse the time string and translate it
+    const match = timeString.match(/(\d+)\s+(.+)/)
+    if (!match) return timeString
+    
+    const count = parseInt(match[1])
+    const unit = match[2]
+    
+    // Map English units to translation keys
+    const unitMap: Record<string, string> = {
+      'minute': 'x_minutes',
+      'minutes': 'x_minutes',
+      'hour': 'x_hours',
+      'hours': 'x_hours',
+      'day': 'x_days',
+      'days': 'x_days',
+      'month': 'x_months',
+      'months': 'x_months',
+      'year': 'x_years',
+      'years': 'x_years'
+    }
+    
+    const translationKey = unitMap[unit]
+    if (translationKey) {
+      const params = getTimeParams(count, unit)
+      return t(`components.listings.card.time_remaining.${translationKey}`, params)
+    }
+    
+    return timeString
+  }
+
+  const getTimeParams = (count: number, unit: string): Record<string, any> => {
+    const params: Record<string, any> = { count }
+    
+    // Get current language
+    const currentLang = i18n.language
+    
+    if (currentLang === 'uk') {
+      // Ukrainian grammatical cases for time units
+      if (unit.includes('minute')) {
+        if (count === 1) params.minutes = 'хвилина'
+        else if (count >= 2 && count <= 4) params.minutes = 'хвилини'
+        else params.minutes = 'хвилин'
+      } else if (unit.includes('hour')) {
+        if (count === 1) params.hours = 'година'
+        else if (count >= 2 && count <= 4) params.hours = 'години'
+        else params.hours = 'годин'
+      } else if (unit.includes('day')) {
+        if (count === 1) params.days = 'день'
+        else if (count >= 2 && count <= 4) params.days = 'дні'
+        else params.days = 'днів'
+      } else if (unit.includes('month')) {
+        if (count === 1) params.months = 'місяць'
+        else if (count >= 2 && count <= 4) params.months = 'місяці'
+        else params.months = 'місяців'
+      } else if (unit.includes('year')) {
+        if (count === 1) params.years = 'рік'
+        else if (count >= 2 && count <= 4) params.years = 'роки'
+        else params.years = 'років'
+      }
+    } else {
+      // English time units
+      if (unit.includes('minute')) {
+        params.minutes = count === 1 ? 'minute' : 'minutes'
+      } else if (unit.includes('hour')) {
+        params.hours = count === 1 ? 'hour' : 'hours'
+      } else if (unit.includes('day')) {
+        params.days = count === 1 ? 'day' : 'days'
+      } else if (unit.includes('month')) {
+        params.months = count === 1 ? 'month' : 'months'
+      } else if (unit.includes('year')) {
+        params.years = count === 1 ? 'year' : 'years'
+      }
+    }
+    
+    return params
   }
 
   const formatDateTime = (dateString: string) => {
@@ -190,7 +319,7 @@ const ListingDetail = () => {
                       </div>
                     ) : (
                       <div className="text-2xl font-bold text-gray-900">
-                        €{listing.price.toFixed(2)}
+                        {formatPrice(listing.price, false)}
                       </div>
                     )}
                   </div>
@@ -294,10 +423,11 @@ const ListingDetail = () => {
                 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
-                    <Clock size={20} className="text-orange-500 mt-0.5" />
+                    <Clock size={20} className={`mt-0.5 ${formatTimeRemaining(listing.available_until).isExpired ? 'text-orange-500' : 'text-green-500'}`} />
                     <div>
                       <p className="font-medium text-gray-900">
-                        {t('listing_detail.available_until_label')} {formatTimeRemaining(listing.available_until)}
+                        {!formatTimeRemaining(listing.available_until).isExpired && `${t('listing_detail.available_until_label')} `}
+                        {formatTimeRemaining(listing.available_until).text}
                       </p>
                       <p className="text-sm text-gray-600">
                         {t('listing_detail.until')} {formatDateTime(listing.available_until)}
