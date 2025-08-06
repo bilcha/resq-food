@@ -22,5 +22,6 @@
     "types": ["vite/client", "vite-plugin-pwa/client"]
   },
   "include": ["src"],
+  "exclude": ["tests", "**/*.test.ts", "**/*.spec.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 } 
