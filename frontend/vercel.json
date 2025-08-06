@@ -1,7 +1,7 @@
 {
   "build": {
     "env": {
-      "NODE_VERSION": "18"
+      "NODE_VERSION": "22"
     }
   },
   "installCommand": "npm install",
@@ -10,7 +10,7 @@
   "outputDirectory": "dist",
   "functions": {
     "frontend/src/pages/api/**/*.js": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs22.x"
     }
   },
   "rewrites": [
