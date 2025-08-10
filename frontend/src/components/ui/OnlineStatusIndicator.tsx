@@ -36,7 +36,7 @@ export default function OnlineStatusIndicator() {
 
   if (!isOnline) {
     return (
-      <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
+      <div className="fixed top-16 right-4 z-50 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
         <WifiOff size={16} />
         <span className="text-sm font-medium">
           {t('components.ui.online_status.offline')}
@@ -47,7 +47,7 @@ export default function OnlineStatusIndicator() {
 
   if (showReconnectedMessage) {
     return (
-      <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
+      <div className="fixed top-16 right-4 z-50 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
         {syncing ? (
           <RefreshCw size={16} className="animate-spin" />
         ) : (

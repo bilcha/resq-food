@@ -113,6 +113,7 @@ const Header = () => {
 
           {/* Mobile menu button */}
           <button
+            aria-label='Toggle menu'
             onClick={toggleMenu}
             className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
           >

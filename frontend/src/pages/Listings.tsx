@@ -116,7 +116,7 @@ const Listings = () => {
               <div className="flex rounded-lg border border-gray-300 overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 flex text-sm font-medium transition-colors ${
                     viewMode === 'grid'
                       ? 'bg-primary-600 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-50'

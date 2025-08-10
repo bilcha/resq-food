@@ -11,6 +11,7 @@ coverage
 .idea
 *.log
 dist
+*-dist
 .DS_Store
 .documentation
 backend/secret
